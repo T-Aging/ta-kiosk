@@ -17,10 +17,10 @@ import java.util.UUID;
 public class AgentService {
     private final AiAgentClient aiAgentClient;
 
-    public SessionStartResponse startSession(SessionStartRequest req){
-        String sessionId= UUID.randomUUID().toString();
+    public SessionStartResponse startSession(SessionStartRequest req) {
+        String sessionId = UUID.randomUUID().toString();
 
-        int menuCount=aiAgentClient.warmupL1(
+        int menuCount = aiAgentClient.warmupL1(
                 req.getStoreId(),
                 req.getMenuVersion()
         );
@@ -34,24 +34,30 @@ public class AgentService {
                 .build();
     }
 
-    public ConverseResponse converse(ConverseRequest req){
+    public ConverseResponse converse(ConverseRequest req) {
 
-        AgentConverseRequest agentReq = new AgentConverseRequest(
-                req.getStoreId(),
-                req.getMenuVersion(),
-                req.getSessionId(),
-                req.getUserText()
-        );
+        // 1) kiosk → agent 요청 DTO 변환
+        AgentConverseRequest agentReq = new AgentConverseRequest();
+        agentReq.setStoreId(req.getStoreId());
+        agentReq.setMenuVersion(req.getMenuVersion());
+        agentReq.setSessionId(req.getSessionId());
+        agentReq.setUserText(req.getUserText());
 
+        // 2) FastAPI 호출
         AgentConverseResponse agentRes = aiAgentClient.converse(agentReq);
 
-        return ConverseResponse.builder()
-                .storeId((agentReq.getStoreId()))
-                .menuVersion(agentRes.getMenuVersion())
-                .sessionId(agentReq.getSessionId())
-                .userText(req.getUserText())
-                .reply(agentRes.getReply())
-                .cacheHit(agentRes.isCacheHit())
-                .build();
+        // 3) agent 응답 → kiosk 응답으로 변환
+        ConverseResponse kioskRes = new ConverseResponse();
+        kioskRes.setStoreId(agentRes.getStoreId());
+        kioskRes.setMenuVersion(agentRes.getMenuVersion());
+        kioskRes.setSessionId(agentRes.getSessionId());
+        kioskRes.setUserText(agentRes.getUserText());
+        kioskRes.setReply(agentRes.getReply());
+        kioskRes.setIntent(agentRes.getIntent());
+        kioskRes.setReason(agentRes.getReason());
+        kioskRes.setItems(agentRes.getItems());
+        kioskRes.setCacheHit(agentRes.isCacheHit());
+
+        return kioskRes;
     }
 }
