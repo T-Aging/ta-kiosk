@@ -1,5 +1,6 @@
 package com.example.tak.modules.kiosk.dto;
 
+import com.example.tak.modules.agent.snapshot.dto.MenuSnapshotDto;
 import lombok.Getter;
 import lombok.Setter;
 

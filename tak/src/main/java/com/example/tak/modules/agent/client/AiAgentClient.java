@@ -2,6 +2,7 @@ package com.example.tak.modules.agent.client;
 
 import com.example.tak.modules.agent.dto.AgentConverseRequest;
 import com.example.tak.modules.agent.dto.AgentConverseResponse;
+import com.example.tak.modules.agent.dto.AgentSessionStartRequest;
 import com.example.tak.modules.agent.dto.AgentSessionStartResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,15 +20,12 @@ public class AiAgentClient {
 
     // FastAPI /session/start 호출해서 L1 스냅샷 워밍업
     // 성공하면 menu_count 리턴, 실패하면 0 리턴
-    public int warmupL1(String storeId, int menuVersion) {
-        log.info("[AiAgentClient] warmupL1 호출: storeId={}, menuVersion={}", storeId, menuVersion);
+    public int warmupL1(AgentSessionStartRequest req) {
+        log.info("[AiAgentClient] warmupL1 호출");
 
         AgentSessionStartResponse resp = aiAgentWebClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/ta-kiosk/ai-agent/session/start")
-                        .queryParam("store_id", storeId)
-                        .queryParam("menu_version", menuVersion)
-                        .build())
+                .uri("/ta-kiosk/ai-agent/session/start")
+                .bodyValue(req)
                 .retrieve()
                 .bodyToMono(AgentSessionStartResponse.class)
                 .doOnNext(r -> log.info("[AiAgentClient] warmupL1 응답: {}", r))
