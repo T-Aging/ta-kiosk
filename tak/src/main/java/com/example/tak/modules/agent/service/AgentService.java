@@ -11,10 +11,12 @@ import com.example.tak.modules.kiosk.dto.ConverseResponse;
 import com.example.tak.modules.kiosk.dto.SessionStartRequest;
 import com.example.tak.modules.kiosk.dto.SessionStartResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AgentService {
@@ -31,6 +33,8 @@ public class AgentService {
                 storeIdInt,
                 req.getMenuVersion()
         );
+
+        log.info("[AgentService] snapshot menus size={}", snapshot.menus().size());
 
         // 3) FastAPI로 보냃 세션 시작 요청 DTO
         AgentSessionStartRequest agentSessionStartRequest=new AgentSessionStartRequest();
