@@ -1,4 +1,4 @@
-package com.example.tak.modules.websocket;
+package com.example.tak.modules.websocket.handler;
 
 import com.example.tak.modules.agent.service.AgentService;
 import com.example.tak.modules.kiosk.dto.ConverseRequest;

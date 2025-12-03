@@ -1,7 +1,7 @@
 package com.example.tak.config;
 
 
-import com.example.tak.modules.websocket.KioskWebSocketHandler;
+import com.example.tak.modules.websocket.handler.KioskWebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
