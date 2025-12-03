@@ -5,6 +5,5 @@ import lombok.Data;
 
 @Data
 public class RecommendedItemDto {
-    @JsonProperty("menu_id")
-    private String menuId;
+    private String name;
 }
