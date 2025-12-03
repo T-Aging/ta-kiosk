@@ -20,6 +20,9 @@ public class Menu {
     @Column(name = "menu_name", length = 100)
     private String name;
 
+    @Column(name = "menu_image", length = 512)
+    private String menuImage;
+
     @Column(name = "menu_price", precision = 10, scale = 2)
     private BigDecimal price;
 

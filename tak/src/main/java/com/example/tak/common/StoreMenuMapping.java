@@ -12,11 +12,11 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
-@IdClass(StoreMenuMapping.class)
+@IdClass(StoreMenuMappingId.class)
 public class StoreMenuMapping {
 
     @Id
-    @Column(name = "storeId")
+    @Column(name = "store_id")
     private Integer storeId;
 
     @Id
@@ -38,4 +38,22 @@ public class StoreMenuMapping {
 class StoreMenuMappingId implements Serializable{
     private Integer storeId;
     private Integer menuId;
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this==obj) return true;
+        if(obj==null||getClass() != obj.getClass()) return false;
+
+        StoreMenuMappingId that=(StoreMenuMappingId) obj;
+
+        if(!storeId.equals(that.storeId)) return false;
+        return menuId.equals(that.menuId);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = storeId!=null?storeId.hashCode() : 0;
+        result=31*result+(menuId!=null?menuId.hashCode() :0);
+        return result;
+    }
 }
