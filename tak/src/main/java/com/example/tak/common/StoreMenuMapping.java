@@ -31,29 +31,3 @@ public class StoreMenuMapping {
     @JoinColumn(name = "menu_id", insertable = false, updatable = false)
     private Menu menu;
 }
-
-@Getter
-@Setter
-@NoArgsConstructor
-class StoreMenuMappingId implements Serializable{
-    private Integer storeId;
-    private Integer menuId;
-
-    @Override
-    public boolean equals(Object obj) {
-        if(this==obj) return true;
-        if(obj==null||getClass() != obj.getClass()) return false;
-
-        StoreMenuMappingId that=(StoreMenuMappingId) obj;
-
-        if(!storeId.equals(that.storeId)) return false;
-        return menuId.equals(that.menuId);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = storeId!=null?storeId.hashCode() : 0;
-        result=31*result+(menuId!=null?menuId.hashCode() :0);
-        return result;
-    }
-}

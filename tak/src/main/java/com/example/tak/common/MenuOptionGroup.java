@@ -5,14 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
-
 @Entity
 @Table(name = "menu_option_group")
 @Getter
 @Setter
 @NoArgsConstructor
-@IdClass(MenuOptionGroup.class)
+@IdClass(MenuOptionGroupId.class)
 public class MenuOptionGroup {
 
     @Id
@@ -30,12 +28,4 @@ public class MenuOptionGroup {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", insertable = false, updatable = false)
     private OptionGroup optionGroup;
-}
-
-@Getter
-@Setter
-@NoArgsConstructor
-class MenuOptionGroupId implements Serializable{
-    private Integer menuId;
-    private Integer groupId;
 }
