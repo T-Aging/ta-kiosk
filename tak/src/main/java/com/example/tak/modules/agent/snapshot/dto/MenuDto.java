@@ -9,9 +9,7 @@ public record MenuDto(
         String menuImage,
         BigDecimal price,
         String description,
-        Integer calorie,
-        Integer sugar,
-        Integer caffeine,
+        NutrientDto nutrientDtos,
         String allergen,
 
         String category,
