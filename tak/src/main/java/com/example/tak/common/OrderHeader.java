@@ -29,6 +29,9 @@ public class OrderHeader {
     @Column(name = "user_id")
     private Integer userId;
 
+    @Column(name = "session_id")
+    private String sessionId;
+
     @Column(name = "order_datetime")
     private LocalDateTime orderDateTime;
 
@@ -49,7 +52,7 @@ public class OrderHeader {
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
     public enum OrderState{
-        PLACED, PAID, MAKING, READY, PICKED, CANCELLED, FAILED
+        CART, PLACED, PAID, MAKING, READY, PICKED, CANCELLED, FAILED
     }
 
     public void addDetail(OrderDetail detail){

@@ -60,7 +60,7 @@ public class OrderSaveService {
         header.setOrderDate(LocalDate.now());
         header.setWaitingNum(null); // 나중에 대기번호 로직 붙이기
         header.setTotalPrice(totalPrice);
-        header.setOrderState(OrderHeader.OrderState.PLACED);
+        header.setOrderState(OrderHeader.OrderState.CART);
 
         // 5) OrderDetail 생성
         OrderDetail detail = new OrderDetail();
