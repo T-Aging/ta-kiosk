@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MenuRepository extends JpaRepository<Menu, Integer> {
 
@@ -17,4 +18,6 @@ public interface MenuRepository extends JpaRepository<Menu, Integer> {
             order by m.id
             """)
     List<Menu> findMenusByStoreId(@Param("storeId") Integer storeId);
+
+    Optional<Menu> findByName(String name);
 }

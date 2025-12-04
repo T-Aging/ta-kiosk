@@ -3,6 +3,8 @@ package com.example.tak.modules.agent.snapshot.service;
 import com.example.tak.common.*;
 import com.example.tak.modules.agent.snapshot.dto.*;
 import com.example.tak.modules.agent.snapshot.repository.*;
+import com.example.tak.modules.kiosk.order.repository.OptionGroupRepository;
+import com.example.tak.modules.kiosk.order.repository.OptionValueRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
