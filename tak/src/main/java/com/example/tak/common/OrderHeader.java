@@ -49,7 +49,7 @@ public class OrderHeader {
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
     public enum OrderState{
-        PLACED, PAID, MARKING, READY, PICKED, CANCELLED, FAILD
+        PLACED, PAID, MAKING, READY, PICKED, CANCELLED, FAILED
     }
 
     public void addDetail(OrderDetail detail){
