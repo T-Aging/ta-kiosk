@@ -3,6 +3,8 @@ package com.example.tak.modules.websocket.handler;
 import com.example.tak.modules.agent.service.AgentService;
 import com.example.tak.modules.kiosk.dto.ConverseRequest;
 import com.example.tak.modules.kiosk.dto.SessionStartRequest;
+import com.example.tak.modules.kiosk.order.dto.request.*;
+import com.example.tak.modules.kiosk.order.orderflow.OrderFlowService;
 import com.example.tak.modules.websocket.dto.WebSocketErrorResponse;
 import com.example.tak.modules.websocket.session.AgentSessionInfo;
 import com.example.tak.modules.websocket.session.WebSocketSessionManager;
@@ -20,6 +22,7 @@ public class WebSocketMessageRouter {
     private final ObjectMapper objectMapper;
     private final AgentService agentService;
     private final WebSocketSessionManager webSocketSessionManager;
+    private final OrderFlowService orderFlowService;
 
     public String route(String type, JsonNode data, String wsSessionId) throws Exception {
         return switch (type) {
@@ -80,6 +83,65 @@ public class WebSocketMessageRouter {
 
                 // WebSocket 전송
                 yield objectMapper.writeValueAsString(response);
+            }
+
+            // ----------------------------주문 플로우 시작----------------------------
+            // 1) 메뉴 선택 시
+            case "order_start" ->{
+                log.info("[Router] handling ORDER_START, wsSessionId={}", wsSessionId);
+
+                AgentSessionInfo info=webSocketSessionManager.get(wsSessionId);
+                if(info==null){
+                    yield objectMapper.writeValueAsString(
+                            WebSocketErrorResponse.of("SESSION_NOT_FOUND", "세션이 없음. 다시 시작 권장")
+                    );
+                }
+
+                OrderStartRequest req=objectMapper.treeToValue(data, OrderStartRequest.class);
+                String storeId=info.getStoreId();
+                var res = orderFlowService.startOrder(wsSessionId, storeId, req.getMenuName());
+
+                yield objectMapper.writeValueAsString(res);
+            }
+
+            // 2) 핫/ 아이스 선택
+            case "select_temperature" ->{
+                log.info("[Router] handling SELECT_TEMPERATURE, wsSessionId={}", wsSessionId);
+
+                SelectTemperatureRequest req = objectMapper.treeToValue(data, SelectTemperatureRequest.class);
+                var res = orderFlowService.selectTemperature(wsSessionId, req.getTemperature());
+
+                yield objectMapper.writeValueAsString(res);
+            }
+
+            // 3) 사이즈 선택
+            case "select_size" -> {
+                log.info("[Router] handling SELECT_SIZE, wsSessionId={}", wsSessionId);
+
+                SelectSizeRequest req = objectMapper.treeToValue(data, SelectSizeRequest.class);
+                var res = orderFlowService.selectSize(wsSessionId, req.getSize());
+
+                yield objectMapper.writeValueAsString(res);
+            }
+
+            // 4) 세부 옵션 Y/N
+            case "detail_option_yn" ->{
+                log.info("[Router] handling DETAIL_OPTION_YN, wsSessionId={}", wsSessionId);
+
+                DetailOptionYnRequest req = objectMapper.treeToValue(data, DetailOptionYnRequest.class);
+                var res = orderFlowService.answerDetailOptionYn(wsSessionId, req.getAnswer());
+
+                yield objectMapper.writeValueAsString(res);
+            }
+
+            // 5) 세부 옵션 Y: 실제 선택
+            case "select_detail_options" -> {
+                log.info("[Router] handling SELECT_DETAIL_OPTIONS, wsSessionId={}", wsSessionId);
+
+                SelectDetailOptionsRequest req = objectMapper.treeToValue(data, SelectDetailOptionsRequest.class);
+                var res = orderFlowService.selectDetailOptions(wsSessionId, req.getSelectedOptionValueIds());
+
+                yield objectMapper.writeValueAsString(res);
             }
 
             // 그 외의 타입은 모두 에러 처리
