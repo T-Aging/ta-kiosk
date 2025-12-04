@@ -3,10 +3,10 @@ package com.example.tak.modules.kiosk.order.service;
 import com.example.tak.common.*;
 import com.example.tak.modules.agent.snapshot.repository.MenuRepository;
 import com.example.tak.modules.agent.snapshot.repository.StoreRepository;
+import com.example.tak.modules.kiosk.cart.repository.OrderHeaderRepository;
 import com.example.tak.modules.kiosk.order.dto.OrderItemSaveDto;
 import com.example.tak.modules.kiosk.order.dto.OrderSaveDto;
 import com.example.tak.modules.kiosk.order.repository.OptionValueRepository;
-import com.example.tak.modules.kiosk.order.repository.OrderHeaderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +56,7 @@ public class OrderSaveService {
         OrderHeader header = new OrderHeader();
         header.setStore(store);
         header.setUserId(dto.getUserId()); // 비회원이면 null
+        header.setSessionId(dto.getSessionId()); // agentSessionId
         header.setOrderDateTime(LocalDateTime.now());
         header.setOrderDate(LocalDate.now());
         header.setWaitingNum(null); // 나중에 대기번호 로직 붙이기

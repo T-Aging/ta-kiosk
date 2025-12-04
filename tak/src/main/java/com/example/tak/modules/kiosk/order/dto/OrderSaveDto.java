@@ -8,6 +8,7 @@ import java.util.List;
 public class OrderSaveDto {
     private Integer storeId;
     private Integer userId;   // 비회원이면 null
+    private String sessionId; // agentSessionId
 
     private List<OrderItemSaveDto> items;
 }

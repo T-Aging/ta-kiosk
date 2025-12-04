@@ -19,4 +19,5 @@ public class OrderFlowState {
     private List<Integer> selectedOptionValueIds = new ArrayList<>();
 
     private OrderStep step;
+    private String sessionId; // agentSessionId
 }

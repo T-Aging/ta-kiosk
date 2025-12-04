@@ -31,10 +31,19 @@ public class OrderFlowService {
     private final OrderSaveService orderSaveService;
     private final MenuOptionRuleRepository menuOptionRuleRepository;
 
-    public AskTemperatureResponse startOrder(String wsSessionId, String storeId, String menuName){
+    public AskTemperatureResponse startOrder(String wsSessionId, String agentSessionId, String storeId, String menuName){
         // 세션 별 상태 가져오기
         OrderFlowState state=stateManager.getOrCreate(wsSessionId);
         state.setStoreId(storeId);
+        state.setSessionId(agentSessionId);
+
+        // 새 주문 시작할 때 이전 값들 초기화
+        state.setStoreId(storeId);
+        state.setMenuId(null);
+        state.setMenuName(null);
+        state.setTemperature(null);
+        state.setSize(null);
+        state.setSelectedOptionValueIds(new ArrayList<>());
 
         Menu menu = menuRepository
                 .findByName(menuName) // 임시
@@ -187,6 +196,8 @@ public class OrderFlowService {
             res.setOptionGroups(optionGroups);
             return res;
         } else {
+            // 이전 주문에서 남아있을 수 있는 옵션 선택값을 초기화
+            state.setSelectedOptionValueIds(new ArrayList<>());
             // 옵션 없이 바로 한 잔 완료
             state.setStep(OrderStep.COMPLETE);
             return completeSingleItemOrder(state);
@@ -264,6 +275,7 @@ public class OrderFlowService {
         OrderSaveDto dto = new OrderSaveDto();
         dto.setStoreId(Integer.valueOf(state.getStoreId()));
         dto.setUserId(null); // 비회원 주문 (로그인 붙으면 세팅)
+        dto.setSessionId(state.getSessionId()); // agentSessionId
         dto.setItems(List.of(item));
 
         return dto;
