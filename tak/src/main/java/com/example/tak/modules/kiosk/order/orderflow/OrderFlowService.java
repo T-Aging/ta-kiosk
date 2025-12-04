@@ -4,11 +4,14 @@ import com.example.tak.common.Menu;
 import com.example.tak.common.OptionGroup;
 import com.example.tak.common.OptionValue;
 import com.example.tak.modules.agent.snapshot.repository.MenuRepository;
+import com.example.tak.modules.kiosk.order.dto.OrderItemSaveDto;
+import com.example.tak.modules.kiosk.order.dto.OrderSaveDto;
 import com.example.tak.modules.kiosk.order.dto.tofe.OptionDto;
 import com.example.tak.modules.kiosk.order.dto.tofe.OptionGroupDto;
 import com.example.tak.modules.kiosk.order.dto.response.*;
 import com.example.tak.modules.kiosk.order.repository.OptionGroupRepository;
 import com.example.tak.modules.kiosk.order.repository.OptionValueRepository;
+import com.example.tak.modules.kiosk.order.service.OrderSaveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +26,7 @@ public class OrderFlowService {
     private final MenuRepository menuRepository;
     private final OptionGroupRepository optionGroupRepository;
     private final OptionValueRepository optionValueRepository;
+    private final OrderSaveService orderSaveService;
 
     public AskTemperatureResponse startOrder(String wsSessionId, String storeId, String menuName){
         // 세션 별 상태 가져오기
@@ -162,7 +166,7 @@ public class OrderFlowService {
         } else {
             // 옵션 없이 바로 한 잔 완료
             state.setStep(OrderStep.COMPLETE);
-            return buildOrderItemCompleteResponse(state);
+            return completeSingleItemOrder(state);
         }
     }
 
@@ -176,8 +180,7 @@ public class OrderFlowService {
         state.setSelectedOptionValueIds(new ArrayList<>(selectedOptionValueIds));
         state.setStep(OrderStep.COMPLETE);
 
-        // 여기서 CartService.addItem(...) 같은 걸 호출해도 좋음
-        return buildOrderItemCompleteResponse(state);
+        return completeSingleItemOrder(state);
     }
 
     private List<OptionGroupDto> loadOptionGroups(Integer menuId) {
@@ -208,6 +211,39 @@ public class OrderFlowService {
         }
 
         return result;
+    }
+
+    private OrderItemCompleteResponse completeSingleItemOrder(OrderFlowState state){
+        // 1) 저장용 DTO로 변환
+        OrderSaveDto orderSaveDto=toOrderSaveDto(state);
+
+        // 2) 로컬 DB에 저장 (헤더/디테일/옵션까지)
+        orderSaveService.saveOrder(orderSaveDto);
+
+        // 3) 프론트로 내려줄 완료 메시지 생성
+        return buildOrderItemCompleteResponse(state);
+    }
+
+    private OrderSaveDto toOrderSaveDto(OrderFlowState state){
+        OrderItemSaveDto item = new OrderItemSaveDto();
+        item.setMenuId(state.getMenuId());
+        item.setMenuName(state.getMenuName());
+        item.setQuantity(1);
+        item.setTemperature(state.getTemperature());
+        item.setSize(state.getSize());
+
+        if (state.getSelectedOptionValueIds() != null) {
+            item.setOptionValueIds(new ArrayList<>(state.getSelectedOptionValueIds()));
+        } else {
+            item.setOptionValueIds(List.of());
+        }
+
+        OrderSaveDto dto = new OrderSaveDto();
+        dto.setStoreId(Integer.valueOf(state.getStoreId()));
+        dto.setUserId(null); // 비회원 주문 (로그인 붙으면 세팅)
+        dto.setItems(List.of(item));
+
+        return dto;
     }
 
     private OrderItemCompleteResponse buildOrderItemCompleteResponse(OrderFlowState state) {
