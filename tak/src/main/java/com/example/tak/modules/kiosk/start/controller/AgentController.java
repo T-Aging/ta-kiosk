@@ -1,10 +1,10 @@
-package com.example.tak.modules.kiosk.controller;
+package com.example.tak.modules.kiosk.start.controller;
 
 import com.example.tak.modules.agent.service.AgentService;
-import com.example.tak.modules.kiosk.dto.ConverseRequest;
-import com.example.tak.modules.kiosk.dto.ConverseResponse;
-import com.example.tak.modules.kiosk.dto.SessionStartRequest;
-import com.example.tak.modules.kiosk.dto.SessionStartResponse;
+import com.example.tak.modules.kiosk.start.dto.ConverseRequest;
+import com.example.tak.modules.kiosk.start.dto.ConverseResponse;
+import com.example.tak.modules.kiosk.start.dto.SessionStartRequest;
+import com.example.tak.modules.kiosk.start.dto.SessionStartResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

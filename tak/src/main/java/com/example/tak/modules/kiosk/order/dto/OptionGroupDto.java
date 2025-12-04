@@ -1,4 +1,4 @@
-package com.example.tak.modules.kiosk.order.dto.tofe;
+package com.example.tak.modules.kiosk.order.dto;
 
 import lombok.Data;
 

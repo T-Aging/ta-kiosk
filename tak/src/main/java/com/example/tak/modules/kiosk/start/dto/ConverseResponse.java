@@ -1,4 +1,4 @@
-package com.example.tak.modules.kiosk.dto;
+package com.example.tak.modules.kiosk.start.dto;
 
 import com.example.tak.modules.agent.dto.RecommendedItemDto;
 import lombok.*;

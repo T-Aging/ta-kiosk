@@ -1,4 +1,4 @@
-package com.example.tak.modules.kiosk.dto;
+package com.example.tak.modules.kiosk.start.dto;
 
 import lombok.Builder;
 import lombok.Getter;

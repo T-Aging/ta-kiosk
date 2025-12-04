@@ -1,8 +1,8 @@
 package com.example.tak.modules.websocket.handler;
 
 import com.example.tak.modules.agent.service.AgentService;
-import com.example.tak.modules.kiosk.dto.ConverseRequest;
-import com.example.tak.modules.kiosk.dto.SessionStartRequest;
+import com.example.tak.modules.kiosk.start.dto.ConverseRequest;
+import com.example.tak.modules.kiosk.start.dto.SessionStartRequest;
 import com.example.tak.modules.kiosk.order.dto.request.*;
 import com.example.tak.modules.kiosk.order.orderflow.OrderFlowService;
 import com.example.tak.modules.websocket.dto.WebSocketErrorResponse;

@@ -8,8 +8,8 @@ import com.example.tak.modules.agent.snapshot.repository.MenuOptionRuleRepositor
 import com.example.tak.modules.agent.snapshot.repository.MenuRepository;
 import com.example.tak.modules.kiosk.order.dto.OrderItemSaveDto;
 import com.example.tak.modules.kiosk.order.dto.OrderSaveDto;
-import com.example.tak.modules.kiosk.order.dto.tofe.OptionDto;
-import com.example.tak.modules.kiosk.order.dto.tofe.OptionGroupDto;
+import com.example.tak.modules.kiosk.order.dto.OptionDto;
+import com.example.tak.modules.kiosk.order.dto.OptionGroupDto;
 import com.example.tak.modules.kiosk.order.dto.response.*;
 import com.example.tak.modules.kiosk.order.repository.OptionGroupRepository;
 import com.example.tak.modules.kiosk.order.repository.OptionValueRepository;

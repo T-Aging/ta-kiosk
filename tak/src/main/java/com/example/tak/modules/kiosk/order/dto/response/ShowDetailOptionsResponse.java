@@ -1,6 +1,6 @@
 package com.example.tak.modules.kiosk.order.dto.response;
 
-import com.example.tak.modules.kiosk.order.dto.tofe.OptionGroupDto;
+import com.example.tak.modules.kiosk.order.dto.OptionGroupDto;
 import lombok.Data;
 
 import java.util.List;
