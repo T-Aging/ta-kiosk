@@ -1,6 +1,8 @@
 package com.example.tak.modules.kiosk.order.orderflow;
 
 import com.example.tak.common.Menu;
+import com.example.tak.common.OptionGroup;
+import com.example.tak.common.OptionValue;
 import com.example.tak.modules.agent.snapshot.repository.MenuRepository;
 import com.example.tak.modules.kiosk.order.dto.tofe.OptionDto;
 import com.example.tak.modules.kiosk.order.dto.tofe.OptionGroupDto;
@@ -35,13 +37,30 @@ public class OrderFlowService {
         state.setMenuName(menu.getName());
         state.setStep(OrderStep.SELECT_TEMPERATURE);
 
-        // 임시로 둘 다 가능하다고 가정
-        boolean hotAvailable=true;
-        boolean iceAvailable=true;
-
         AskTemperatureResponse res= new AskTemperatureResponse();
         res.setType("ask_temperature");
         res.setMenuName(menu.getName());
+
+        // 1) 이 메뉴에 temperature 그룹이 있는지 조회
+        var tempGroupOpt = optionGroupRepository.findGroupForMenuAndKey(menu.getId(), "temperature");
+        if(tempGroupOpt.isEmpty()){
+            // 온도 옵션이 아예 없는 메뉴 -> 온도 질문 없이 바로 사이즈로
+            state.setStep(OrderStep.SELECT_SIZE);
+            res.setQuestion("온도 선택 없이 진행할게요.");
+            res.setChoices(List.of());
+            return res;
+        }
+
+        OptionGroup tempGroup = tempGroupOpt.get();
+
+        // 2) temperature 그룹의 실제 옵션 값들(HOT/ICE 등)
+        var tempValues=optionValueRepository.findByOptionGroupIdAndActiveTrueOrderBySortOrder(tempGroup.getId());
+
+        boolean hotAvailable = tempValues.stream()
+                .anyMatch(v -> "HOT".equalsIgnoreCase(v.getValueKey()));
+        boolean iceAvailable = tempValues.stream()
+                .anyMatch(v -> "ICE".equalsIgnoreCase(v.getValueKey()));
+
 
         if (hotAvailable && iceAvailable) {
             res.setQuestion("뜨겁게 드실까요, 차갑게 드실까요?");
@@ -72,9 +91,22 @@ public class OrderFlowService {
         state.setTemperature(temperature);
         state.setStep(OrderStep.SELECT_SIZE);
 
-        // TODO: 실제로는 메뉴별 사이즈 가능 여부를 DB에서 조회
-        // ex) List<String> sizes = menuOptionRepository.findSizesByMenuId(state.getMenuId());
-        List<String> sizes = List.of("R", "L"); // 임시 예시
+        var sizeGroupOpt = optionGroupRepository.findGroupForMenuAndKey(state.getMenuId(), "size");
+
+        List<String> sizes;
+
+        if (sizeGroupOpt.isPresent()) {
+            var sizeGroup = sizeGroupOpt.get();
+            var sizeValues = optionValueRepository.findByOptionGroupIdAndActiveTrueOrderBySortOrder(sizeGroup.getId());
+
+            // 프론트와는 value_key 기준으로 주고받기 (R / L 등)
+            sizes = sizeValues.stream()
+                    .map(OptionValue::getValueKey)
+                    .toList();
+        } else {
+            // size 그룹이 없으면 기본 사이즈 하나만 있다고 가정 (ex. "R")
+            sizes = List.of("R");
+        }
 
         AskSizeResponse res = new AskSizeResponse();
         res.setType("ask_size");
@@ -150,30 +182,32 @@ public class OrderFlowService {
 
     private List<OptionGroupDto> loadOptionGroups(Integer menuId) {
 
-        // 실제 구현에서는 menuId 기준으로 option_group / option_value 테이블 조인해서 조회
+        var groups = optionGroupRepository.findDetailGroupsForMenu(menuId);
 
-        // 더미 예시
-        List<OptionGroupDto> groups = new ArrayList<>();
+        List<OptionGroupDto> result = new ArrayList<>();
 
-        OptionGroupDto shotGroup = new OptionGroupDto();
-        shotGroup.setGroupName("샷 추가");
-        shotGroup.setMaxSelect(3);
-        shotGroup.setOptions(List.of(
-                new OptionDto(101, "1샷 추가", 500),
-                new OptionDto(102, "2샷 추가", 1000)
-        ));
+        for (var group : groups) {
+            // 그룹별 활성 옵션 값 조회
+            var values = optionValueRepository
+                    .findByOptionGroupIdAndActiveTrueOrderBySortOrder(group.getId());
 
-        OptionGroupDto whipGroup = new OptionGroupDto();
-        whipGroup.setGroupName("휘핑");
-        whipGroup.setMaxSelect(1);
-        whipGroup.setOptions(List.of(
-                new OptionDto(201, "휘핑 추가", 500)
-        ));
+            OptionGroupDto groupDto = new OptionGroupDto();
+            groupDto.setGroupName(group.getDisplayName());
+            groupDto.setMaxSelect(group.getMaxSelect());
 
-        groups.add(shotGroup);
-        groups.add(whipGroup);
+            List<OptionDto> optionDtos = values.stream()
+                    .map(v -> new OptionDto(
+                            v.getId(),
+                            v.getDisplayName(),
+                            v.getExtraPrice().intValue()
+                    ))
+                    .toList();
 
-        return groups;
+            groupDto.setOptions(optionDtos);
+            result.add(groupDto);
+        }
+
+        return result;
     }
 
     private OrderItemCompleteResponse buildOrderItemCompleteResponse(OrderFlowState state) {

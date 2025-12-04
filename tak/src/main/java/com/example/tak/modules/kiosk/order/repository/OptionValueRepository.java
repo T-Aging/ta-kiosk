@@ -35,4 +35,6 @@ public interface OptionValueRepository extends JpaRepository<OptionValue, Intege
     List<OptionValue> findAvailableValuesForMenuAndGroup(Integer menuId, Integer groupId);
 
     List<OptionValue> findByOptionGroupId(Integer groupId);
+
+    List<OptionValue> findByOptionGroupIdAndActiveTrueOrderBySortOrder(Integer optionGroupId);
 }
