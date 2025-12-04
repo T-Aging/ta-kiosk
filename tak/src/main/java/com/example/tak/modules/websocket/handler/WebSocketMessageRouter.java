@@ -1,6 +1,7 @@
 package com.example.tak.modules.websocket.handler;
 
 import com.example.tak.modules.agent.service.AgentService;
+import com.example.tak.modules.kiosk.cart.service.CartQueryService;
 import com.example.tak.modules.kiosk.start.dto.ConverseRequest;
 import com.example.tak.modules.kiosk.start.dto.SessionStartRequest;
 import com.example.tak.modules.kiosk.order.dto.request.*;
@@ -23,6 +24,7 @@ public class WebSocketMessageRouter {
     private final AgentService agentService;
     private final WebSocketSessionManager webSocketSessionManager;
     private final OrderFlowService orderFlowService;
+    private final CartQueryService cartQueryService;
 
     public String route(String type, JsonNode data, String wsSessionId) throws Exception {
         return switch (type) {
@@ -85,6 +87,30 @@ public class WebSocketMessageRouter {
                 yield objectMapper.writeValueAsString(response);
             }
 
+            // ---------------------------- 장바구니 조회 ----------------------------
+            case "get_cart" -> {
+                log.info("[Router] handling GET_CART, wsSessionId={}", wsSessionId);
+
+                AgentSessionInfo info = webSocketSessionManager.get(wsSessionId);
+                if (info == null) {
+                    yield objectMapper.writeValueAsString(
+                            WebSocketErrorResponse.of(
+                                    "SESSION_NOT_FOUND",
+                                    "세션이 없음. 다시 시작 권장"
+                            )
+                    );
+                }
+
+                // storeId는 AgentSessionInfo에 String으로 들어있을 가능성 크니까 변환
+                Integer storeId = Integer.valueOf(info.getStoreId());
+                String agentSessionId = info.getAgentSessionId();
+
+                var cart = cartQueryService.getCart(storeId, agentSessionId);
+
+                // CartResponseDto 그대로 내려보내기
+                yield objectMapper.writeValueAsString(cart);
+            }
+
             // ----------------------------주문 플로우 시작----------------------------
             // 1) 메뉴 선택 시
             case "order_start" ->{
@@ -99,7 +125,9 @@ public class WebSocketMessageRouter {
 
                 OrderStartRequest req=objectMapper.treeToValue(data, OrderStartRequest.class);
                 String storeId=info.getStoreId();
-                var res = orderFlowService.startOrder(wsSessionId, storeId, req.getMenuName());
+                String agentSessionId = info.getAgentSessionId();
+
+                var res = orderFlowService.startOrder(wsSessionId, agentSessionId, storeId, req.getMenuName());
 
                 yield objectMapper.writeValueAsString(res);
             }
