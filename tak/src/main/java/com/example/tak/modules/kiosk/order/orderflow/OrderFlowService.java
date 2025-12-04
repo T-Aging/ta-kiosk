@@ -1,8 +1,10 @@
 package com.example.tak.modules.kiosk.order.orderflow;
 
 import com.example.tak.common.Menu;
+import com.example.tak.common.MenuOptionRule;
 import com.example.tak.common.OptionGroup;
 import com.example.tak.common.OptionValue;
+import com.example.tak.modules.agent.snapshot.repository.MenuOptionRuleRepository;
 import com.example.tak.modules.agent.snapshot.repository.MenuRepository;
 import com.example.tak.modules.kiosk.order.dto.OrderItemSaveDto;
 import com.example.tak.modules.kiosk.order.dto.OrderSaveDto;
@@ -27,6 +29,7 @@ public class OrderFlowService {
     private final OptionGroupRepository optionGroupRepository;
     private final OptionValueRepository optionValueRepository;
     private final OrderSaveService orderSaveService;
+    private final MenuOptionRuleRepository menuOptionRuleRepository;
 
     public AskTemperatureResponse startOrder(String wsSessionId, String storeId, String menuName){
         // 세션 별 상태 가져오기
@@ -58,14 +61,34 @@ public class OrderFlowService {
         OptionGroup tempGroup = tempGroupOpt.get();
 
         // 2) temperature 그룹의 실제 옵션 값들(HOT/ICE 등)
-        var tempValues=optionValueRepository.findByOptionGroupIdAndActiveTrueOrderBySortOrder(tempGroup.getId());
+        var tempValues=optionValueRepository
+                .findByOptionGroupIdAndActiveTrueOrderBySortOrder(tempGroup.getId());
 
+        // 3) 이 메뉴 + temperature 그룹에 대한 룰 조회 (default / forbid / recommend 등)
+        var tempRules = menuOptionRuleRepository.findByMenuAndGroup(menu.getId(), tempGroup.getId());
+
+        boolean hotForbidden = tempRules.stream()
+                .anyMatch(r ->
+                        r.getRuleType() == MenuOptionRule.RuleType.FORBID &&
+                                "HOT".equalsIgnoreCase(r.getOptionValue().getValueKey())
+                );
+
+        boolean iceForbidden = tempRules.stream()
+                .anyMatch(r ->
+                        r.getRuleType() == MenuOptionRule.RuleType.FORBID &&
+                                "ICE".equalsIgnoreCase(r.getOptionValue().getValueKey())
+                );
+
+        // 4) 실제로 선택 가능한지 = 값이 존재 + forbid 룰에 걸리지 않음
         boolean hotAvailable = tempValues.stream()
-                .anyMatch(v -> "HOT".equalsIgnoreCase(v.getValueKey()));
+                .anyMatch(v -> "HOT".equalsIgnoreCase(v.getValueKey()))
+                && !hotForbidden;
+
         boolean iceAvailable = tempValues.stream()
-                .anyMatch(v -> "ICE".equalsIgnoreCase(v.getValueKey()));
+                .anyMatch(v -> "ICE".equalsIgnoreCase(v.getValueKey()))
+                && !iceForbidden;
 
-
+        // 5) 프론트에 내려줄 질문/선택지 구성
         if (hotAvailable && iceAvailable) {
             res.setQuestion("뜨겁게 드실까요, 차갑게 드실까요?");
             res.setChoices(List.of("HOT", "ICE"));
