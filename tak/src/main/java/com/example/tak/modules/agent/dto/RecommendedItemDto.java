@@ -6,4 +6,10 @@ import lombok.Data;
 @Data
 public class RecommendedItemDto {
     private String name;
+
+    private int price;
+
+    @JsonProperty("menu_image")
+    private String menuImage;
+
 }
