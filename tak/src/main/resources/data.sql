@@ -18,12 +18,12 @@ VALUES
 
 -- ===== 메뉴 목록 =====
 -- menu_id, menu_name, menu_price, description, calorie, sugar, caffeine, allergic, menu_image
+-- ✅ 아메리카노는 한 줄만 두고, HOT/ICE는 temperature 옵션으로만 구분
 
 INSERT INTO menu (menu_id, menu_name, menu_price, description, calorie, sugar, caffeine, allergic, menu_image)
 VALUES
   -- 아메리카노 계열
   (1,  '아메리카노',           2000, '기본 에스프레소 커피',                     5,   0,   120, 'NONE', 'http://localhost:8080/image/screen.png'),
-  (2,  '핫 아메리카노',        2000, '따뜻하게 즐기는 아메리카노',               5,   0,   120, 'NONE', 'http://localhost:8080/image/screen.png'),
   (3,  '연유 아메리카노',      2500, '연유가 들어가 달달한 아메리카노',          80,  15,  120, 'MILK', 'http://localhost:8080/image/screen.png'),
   (4,  '디카페인 아메리카노',  2500, '카페인을 줄인 아메리카노',                 5,   0,    5, 'NONE', 'http://localhost:8080/image/screen.png'),
 
@@ -72,177 +72,192 @@ VALUES
   (71, '포도 주스',            3500, '달콤한 포도 생과일 주스',                  140, 30,    0, 'NONE', 'http://localhost:8080/image/screen.png'),
   (72, '토마토 주스',          3500, '담백한 토마토 주스',                       80,  15,    0, 'NONE', 'http://localhost:8080/image/screen.png');
 
-
 -- ===== 매장-메뉴 매핑 =====
--- 이 매장에서 판매하는 메뉴
 INSERT INTO store_menu_mapping (store_id, menu_id)
-VALUES
-  (1, 1),
-  (1, 2),
-  (1, 3),
-  (1, 4),
-  (1, 5),
-  (1, 6),
-
-  (1, 10),
-  (1, 11),
-  (1, 12),
-  (1, 13),
-  (1, 14),
-  (1, 15),
-
-  (1, 20),
-  (1, 21),
-  (1, 22),
-  (1, 23),
-  (1, 24),
-
-  (1, 30),
-  (1, 31),
-  (1, 32),
-  (1, 33),
-
-  (1, 40),
-  (1, 41),
-  (1, 42),
-  (1, 43),
-
-  (1, 50),
-  (1, 51),
-  (1, 52),
-
-  (1, 60),
-  (1, 61),
-  (1, 62),
-
-  (1, 70),
-  (1, 71),
-  (1, 72);
+SELECT 1, menu_id FROM menu;
 
 -- ===== 옵션 그룹 정의 =====
 -- group_id, group_key, display_name, selection_type, min_select, max_select, sort_order, is_required, is_active
+-- ✅ group_key를 코드에서 쓰는 값과 맞춰서 소문자 'size', 'temperature' 사용
+
 INSERT INTO option_group (group_id, group_key, display_name, selection_type, min_select, max_select, sort_order, is_required, is_active)
 VALUES
-  (1, 'SIZE',      '사이즈 선택',   'single', 1, 1, 1, 1, 1),
-  (2, 'TEMP',      'ICE/HOT 선택',  'single', 1, 1, 2, 1, 1),
-  (3, 'SHOT',      '샷 추가',       'multi',  0, 3, 3, 0, 1),
-  (4, 'SYRUP',     '시럽 선택',     'multi',  0, 3, 4, 0, 1),
-  (5, 'MILK_TYPE', '우유 선택',     'single', 0, 1, 5, 0, 1);
+  (1, 'size',        '사이즈 선택',   'single', 1, 1, 1, 1, 1),
+  (2, 'temperature', 'HOT/ICE 선택',  'single', 1, 1, 2, 1, 1),
+  (3, 'shot',        '샷 추가',       'multi',  0, 3, 3, 0, 1),
+  (4, 'syrup',       '시럽 선택',     'multi',  0, 3, 4, 0, 1),
+  (5, 'milk_type',   '우유 선택',     'single', 0, 1, 5, 0, 1);
 
 -- ===== 옵션 값 정의 =====
 -- value_id, group_id, value_key, display_name, extra_price, sort_order, is_active
+-- ✅ SIZE: SMALL / REGULAR / LARGE 하나씩 정의
 INSERT INTO option_value (value_id, group_id, value_key, display_name, extra_price, sort_order, is_active)
 VALUES
   -- SIZE
-  (1, 1, 'SMALL',   '스몰',      0,    1, 1),
-  (2, 1, 'REGULAR', '레귤러',    500,  2, 1),
-  (3, 1, 'LARGE',   '라지',      1000, 3, 1),
+  (1, 1, 'SMALL',   '스몰',          0,    1, 1),
+  (2, 1, 'REGULAR', '레귤러',        500,  2, 1),
+  (3, 1, 'LARGE',   '라지',          1000, 3, 1),
 
-  -- TEMP
-  (4, 2, 'HOT',     'HOT',       0,    1, 1),
-  (5, 2, 'ICE',     'ICE',       0,    2, 1),
+  -- TEMPERATURE
+  (4, 2, 'HOT',     'HOT',           0,    1, 1),
+  (5, 2, 'ICE',     'ICE',           0,    2, 1),
 
   -- SHOT
-  (6, 3, 'SHOT1',   '샷 1샷 추가', 500, 1, 1),
-  (7, 3, 'SHOT2',   '샷 2샷 추가', 1000,2, 1),
+  (6, 3, 'SHOT1',   '샷 1샷 추가',   500, 1, 1),
+  (7, 3, 'SHOT2',   '샷 2샷 추가',   1000,2, 1),
 
   -- SYRUP
-  (8, 4, 'VANILLA', '바닐라 시럽', 500, 1, 1),
-  (9, 4, 'CARAMEL', '카라멜 시럽', 500, 2, 1),
-  (10,4, 'HAZELNUT','헤이즐넛 시럽',500,3, 1),
+  (8, 4, 'VANILLA', '바닐라 시럽',   500, 1, 1),
+  (9, 4, 'CARAMEL', '카라멜 시럽',   500, 2, 1),
+  (10,4, 'HAZELNUT','헤이즐넛 시럽', 500, 3, 1),
 
   -- MILK_TYPE
-  (11,5, 'WHOLE',   '일반 우유',   0,   1, 1),
-  (12,5, 'LOWFAT',  '저지방 우유', 0,   2, 1),
-  (13,5, 'OAT',     '오트 밀크',   500, 3, 1);
+  (11,5, 'WHOLE',   '일반 우유',     0,   1, 1),
+  (12,5, 'LOWFAT',  '저지방 우유',   0,   2, 1),
+  (13,5, 'OAT',     '오트 밀크',     500, 3, 1);
 
 -- ===== 메뉴-옵션 그룹 매핑 =====
--- 어떤 메뉴에 어떤 옵션 그룹을 보여줄지 설정
-
--- 아메리카노/콜드브루 (1 ~ 6): SIZE, TEMP, SHOT, SYRUP
+-- ✅ 모든 메뉴에 SIZE 그룹(1) 부여
 INSERT INTO menu_option_group (menu_id, group_id)
-SELECT menu_id, group_id
-FROM (
-    SELECT menu_id, 1 AS group_id FROM menu WHERE menu_id BETWEEN 1 AND 6
-    UNION ALL
-    SELECT menu_id, 2 AS group_id FROM menu WHERE menu_id BETWEEN 1 AND 6
-    UNION ALL
-    SELECT menu_id, 3 AS group_id FROM menu WHERE menu_id BETWEEN 1 AND 6
-    UNION ALL
-    SELECT menu_id, 4 AS group_id FROM menu WHERE menu_id BETWEEN 1 AND 6
-) t;
+SELECT menu_id, 1
+FROM menu;
 
--- 라떼 계열 (10 ~ 15): SIZE, TEMP, SHOT, SYRUP, MILK_TYPE
-INSERT INTO menu_option_group (menu_id, group_id)
-SELECT menu_id, group_id
-FROM (
-    SELECT menu_id, 1 AS group_id FROM menu WHERE menu_id BETWEEN 10 AND 15
-    UNION ALL
-    SELECT menu_id, 2 AS group_id FROM menu WHERE menu_id BETWEEN 10 AND 15
-    UNION ALL
-    SELECT menu_id, 3 AS group_id FROM menu WHERE menu_id BETWEEN 10 AND 15
-    UNION ALL
-    SELECT menu_id, 4 AS group_id FROM menu WHERE menu_id BETWEEN 10 AND 15
-    UNION ALL
-    SELECT menu_id, 5 AS group_id FROM menu WHERE menu_id BETWEEN 10 AND 15
-) t;
-
--- 논커피 라떼 (20 ~ 24): SIZE, TEMP, MILK_TYPE
-INSERT INTO menu_option_group (menu_id, group_id)
-SELECT menu_id, group_id
-FROM (
-    SELECT menu_id, 1 AS group_id FROM menu WHERE menu_id BETWEEN 20 AND 24
-    UNION ALL
-    SELECT menu_id, 2 AS group_id FROM menu WHERE menu_id BETWEEN 20 AND 24
-    UNION ALL
-    SELECT menu_id, 5 AS group_id FROM menu WHERE menu_id BETWEEN 20 AND 24
-) t;
-
--- 티 (40 ~ 43): TEMP만
+-- ✅ temperature가 필요한 모든 메뉴에 TEMP 그룹(2) 부여 (여기서는 전 메뉴에 부여)
 INSERT INTO menu_option_group (menu_id, group_id)
 SELECT menu_id, 2
+FROM menu;
+
+-- 아메리카노/콜드브루, 라떼, 논커피 라떼는 SHOT/SYRUP/MILK_TYPE 일부 사용
+
+-- 아메리카노/콜드브루 (1,3,4,5,6): shot, syrup
+INSERT INTO menu_option_group (menu_id, group_id)
+SELECT menu_id, 3
 FROM menu
-WHERE menu_id BETWEEN 40 AND 43;
+WHERE menu_id IN (1,3,4,5,6);
+
+INSERT INTO menu_option_group (menu_id, group_id)
+SELECT menu_id, 4
+FROM menu
+WHERE menu_id IN (1,3,4,5,6);
+
+-- 라떼 계열 (10 ~ 15): shot, syrup, milk_type
+INSERT INTO menu_option_group (menu_id, group_id)
+SELECT menu_id, 3
+FROM menu
+WHERE menu_id BETWEEN 10 AND 15;
+
+INSERT INTO menu_option_group (menu_id, group_id)
+SELECT menu_id, 4
+FROM menu
+WHERE menu_id BETWEEN 10 AND 15;
+
+INSERT INTO menu_option_group (menu_id, group_id)
+SELECT menu_id, 5
+FROM menu
+WHERE menu_id BETWEEN 10 AND 15;
+
+-- 논커피 라떼 (20 ~ 24): milk_type 만
+INSERT INTO menu_option_group (menu_id, group_id)
+SELECT menu_id, 5
+FROM menu
+WHERE menu_id BETWEEN 20 AND 24;
 
 -- ===== 메뉴 옵션 룰 (기본값/추천/금지 등) =====
--- rule_id(AI), rule_type('default','forbid','recommend'), rule_json(JSON), menu_id, group_id, value_id
+-- rule_type('default','forbid','recommend'), rule_json(JSON), menu_id, group_id, value_id
 
--- 아메리카노 / 콜드브루 (1 ~ 6)
+-- 공통: SIZE 기본값 REGULAR (모든 메뉴)
 INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
-SELECT 'default', '{"groupKey":"SIZE","valueKey":"REGULAR"}', menu_id, 1, 2
-FROM menu WHERE menu_id BETWEEN 1 AND 6;
+SELECT 'default', '{"groupKey":"size","valueKey":"REGULAR"}', menu_id, 1, 2
+FROM menu;
+
+-- 1) 아메리카노 / 콜드브루 (1,3,4,5,6)
+--   - 둘 다 가능한 애(1,3,4): default ICE, 둘 다 허용
+--   - ICE only 애(5,6): default ICE + HOT forbid
+
+-- 아메리카노/연유/디카페인 아메 (둘 다 가능)
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'default', '{"groupKey":"temperature","valueKey":"ICE"}', menu_id, 2, 5
+FROM menu WHERE menu_id IN (1,3,4);
+
+-- 콜드브루/디카페인 콜드브루 (ICE only)
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'default', '{"groupKey":"temperature","valueKey":"ICE"}', menu_id, 2, 5
+FROM menu WHERE menu_id IN (5,6);
 
 INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
-SELECT 'default', '{"groupKey":"TEMP","valueKey":"ICE"}', menu_id, 2, 5
-FROM menu WHERE menu_id BETWEEN 1 AND 6;
+SELECT 'forbid', '{"groupKey":"temperature","valueKey":"HOT"}', menu_id, 2, 4
+FROM menu WHERE menu_id IN (5,6);
 
-
--- 라떼 계열 (10 ~ 15)
+-- 2) 라떼 계열 (10 ~ 15) : 둘 다 가능, 기본 ICE
 INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
-SELECT 'default', '{"groupKey":"SIZE","valueKey":"REGULAR"}', menu_id, 1, 2
+SELECT 'default', '{"groupKey":"temperature","valueKey":"ICE"}', menu_id, 2, 5
 FROM menu WHERE menu_id BETWEEN 10 AND 15;
 
+-- 라떼: 샷 1샷 추가 recommend
 INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
-SELECT 'default', '{"groupKey":"TEMP","valueKey":"ICE"}', menu_id, 2, 5
+SELECT 'recommend', '{"groupKey":"shot","valueKey":"SHOT1"}', menu_id, 3, 6
 FROM menu WHERE menu_id BETWEEN 10 AND 15;
 
--- 추천: 라떼는 샷 1 추가 recommend
+-- 3) 논커피 라떼 (20 ~ 24) : 둘 다 가능, 기본 HOT
 INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
-SELECT 'recommend', '{"groupKey":"SHOT","valueKey":"SHOT1"}', menu_id, 3, 6
-FROM menu WHERE menu_id BETWEEN 10 AND 15;
-
-
--- 논커피 라떼 (20 ~ 24)
-INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
-SELECT 'default', '{"groupKey":"TEMP","valueKey":"HOT"}', menu_id, 2, 4
+SELECT 'default', '{"groupKey":"temperature","valueKey":"HOT"}', menu_id, 2, 4
 FROM menu WHERE menu_id BETWEEN 20 AND 24;
 
+-- 논커피 라떼: milk_type 기본 WHOLE
 INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
-SELECT 'default', '{"groupKey":"MILK_TYPE","valueKey":"WHOLE"}', menu_id, 5, 11
+SELECT 'default', '{"groupKey":"milk_type","valueKey":"WHOLE"}', menu_id, 5, 11
 FROM menu WHERE menu_id BETWEEN 20 AND 24;
 
-
--- 티 (40 ~ 43): 기본 HOT
+-- 4) 에이드 (30 ~ 33) : ICE only, 기본 ICE
 INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
-SELECT 'default', '{"groupKey":"TEMP","valueKey":"HOT"}', menu_id, 2, 4
-FROM menu WHERE menu_id BETWEEN 40 AND 43;
+SELECT 'default', '{"groupKey":"temperature","valueKey":"ICE"}', menu_id, 2, 5
+FROM menu WHERE menu_id BETWEEN 30 AND 33;
+
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'forbid', '{"groupKey":"temperature","valueKey":"HOT"}', menu_id, 2, 4
+FROM menu WHERE menu_id BETWEEN 30 AND 33;
+
+-- 5) 티 (40,41,42 HOT only / 43 ICE only)
+
+-- 40~42: HOT only, 기본 HOT
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'default', '{"groupKey":"temperature","valueKey":"HOT"}', menu_id, 2, 4
+FROM menu WHERE menu_id IN (40,41,42);
+
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'forbid', '{"groupKey":"temperature","valueKey":"ICE"}', menu_id, 2, 5
+FROM menu WHERE menu_id IN (40,41,42);
+
+-- 43: 아이스티 → ICE only, 기본 ICE
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+VALUES ('default', '{"groupKey":"temperature","valueKey":"ICE"}', 43, 2, 5);
+
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+VALUES ('forbid', '{"groupKey":"temperature","valueKey":"HOT"}', 43, 2, 4);
+
+-- 6) 스무디 (50 ~ 52): ICE only, 기본 ICE
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'default', '{"groupKey":"temperature","valueKey":"ICE"}', menu_id, 2, 5
+FROM menu WHERE menu_id BETWEEN 50 AND 52;
+
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'forbid', '{"groupKey":"temperature","valueKey":"HOT"}', menu_id, 2, 4
+FROM menu WHERE menu_id BETWEEN 50 AND 52;
+
+-- 7) 프라페 (60 ~ 62): ICE only, 기본 ICE
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'default', '{"groupKey":"temperature","valueKey":"ICE"}', menu_id, 2, 5
+FROM menu WHERE menu_id BETWEEN 60 AND 62;
+
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'forbid', '{"groupKey":"temperature","valueKey":"HOT"}', menu_id, 2, 4
+FROM menu WHERE menu_id BETWEEN 60 AND 62;
+
+-- 8) 주스 (70 ~ 72): ICE only, 기본 ICE
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'default', '{"groupKey":"temperature","valueKey":"ICE"}', menu_id, 2, 5
+FROM menu WHERE menu_id BETWEEN 70 AND 72;
+
+INSERT INTO menu_option_rule (rule_type, rule_json, menu_id, group_id, value_id)
+SELECT 'forbid', '{"groupKey":"temperature","valueKey":"HOT"}', menu_id, 2, 4
+FROM menu WHERE menu_id BETWEEN 70 AND 72;
