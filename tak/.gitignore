@@ -38,3 +38,5 @@ out/
 *.yml
 *.env
 *.properties
+*.sh
+Dockerfile
