@@ -39,4 +39,3 @@ out/
 *.env
 *.properties
 *.sh
-Dockerfile
