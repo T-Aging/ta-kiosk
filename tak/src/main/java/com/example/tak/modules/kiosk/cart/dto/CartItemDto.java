@@ -18,5 +18,9 @@ public class CartItemDto {
     // 1잔 기준 가격(기본+옵션)
     private BigDecimal unitPrice;
     private BigDecimal lineTotalPrice;
+
+    private String temperature;
+    private String size;
+
     private List<CartItemOptionDto> options;
 }

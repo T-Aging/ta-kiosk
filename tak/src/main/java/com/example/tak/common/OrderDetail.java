@@ -32,6 +32,12 @@ public class OrderDetail {
     @Column(name = "quantity")
     private Integer quantity;
 
+    @Column(name = "temperature", length = 10)
+    private String temperature;
+
+    @Column(name = "size", length = 10)
+    private String size;
+
     @Column(name = "order_detail_price", precision = 10, scale = 2)
     private BigDecimal orderDetailPrice;
 

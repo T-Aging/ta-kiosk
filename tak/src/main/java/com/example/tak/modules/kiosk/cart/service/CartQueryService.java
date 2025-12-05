@@ -64,6 +64,9 @@ public class CartQueryService {
         BigDecimal lineTotal = unitPrice.multiply(BigDecimal.valueOf(detail.getQuantity()));
         dto.setLineTotalPrice(lineTotal);
 
+        dto.setTemperature(detail.getTemperature());
+        dto.setSize(detail.getSize());
+
         List<CartItemOptionDto> options = detail.getOrderOptions().stream()
                 .map(this::toCartItemOptionDto)
                 .toList();

@@ -88,6 +88,9 @@ public class OrderSaveService {
         detail.setQuantity(qty);
         detail.setOrderDetailPrice(itemPrice);
 
+        detail.setTemperature(item.getTemperature());
+        detail.setSize(item.getSize());
+
         header.addDetail(detail);
 
         // 6) OrderOption 생성
