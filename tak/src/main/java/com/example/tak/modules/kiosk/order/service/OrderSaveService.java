@@ -9,6 +9,7 @@ import com.example.tak.modules.kiosk.order.dto.OrderSaveDto;
 import com.example.tak.modules.kiosk.order.repository.OptionValueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ public class OrderSaveService {
     private final MenuRepository menuRepository;
     private final OptionValueRepository optionValueRepository;
 
+    @Transactional
     public OrderHeader saveOrder(OrderSaveDto dto){
         if(dto.getItems() == null || dto.getItems().isEmpty()){
             throw new IllegalArgumentException("저장할 주문 아이템이 없습니다.");
@@ -52,16 +54,33 @@ public class OrderSaveService {
         BigDecimal itemPrice = basePrice.add(optionTotal);          // 1잔 가격
         BigDecimal totalPrice = itemPrice.multiply(BigDecimal.valueOf(qty)); // 전체 주문 금액
 
-        // 4) OrderHeader 생성
-        OrderHeader header = new OrderHeader();
-        header.setStore(store);
-        header.setUserId(dto.getUserId()); // 비회원이면 null
-        header.setSessionId(dto.getSessionId()); // agentSessionId
-        header.setOrderDateTime(LocalDateTime.now());
-        header.setOrderDate(LocalDate.now());
-        header.setWaitingNum(null); // 나중에 대기번호 로직 붙이기
-        header.setTotalPrice(totalPrice);
-        header.setOrderState(OrderHeader.OrderState.CART);
+        // 4) 기존 CART 헤더 조회 (같은 매장 + 같은 agentSessionId)
+        OrderHeader header = orderHeaderRepository
+                .findFirstByStore_IdAndSessionIdAndOrderStateOrderByOrderDateTimeDesc(
+                        dto.getStoreId(),
+                        dto.getSessionId(),
+                        OrderHeader.OrderState.CART
+                )
+                .orElse(null);
+
+        // 4-1) 없으면 새 헤더 생성
+        if (header == null) {
+            header = new OrderHeader();
+            header.setStore(store);
+            header.setUserId(dto.getUserId()); // 비회원이면 null
+            header.setSessionId(dto.getSessionId()); // agentSessionId
+            header.setOrderDateTime(LocalDateTime.now());
+            header.setOrderDate(LocalDate.now());
+            header.setWaitingNum(null); // 나중에 대기번호 로직 붙이기
+            header.setTotalPrice(totalPrice); // 첫 아이템 금액으로 초기화
+            header.setOrderState(OrderHeader.OrderState.CART);
+        } else {
+            // 이미 존재하는 CART에 금액 누적
+            BigDecimal current = header.getTotalPrice() != null
+                    ? header.getTotalPrice()
+                    : BigDecimal.ZERO;
+            header.setTotalPrice(current.add(totalPrice));
+        }
 
         // 5) OrderDetail 생성
         OrderDetail detail = new OrderDetail();
