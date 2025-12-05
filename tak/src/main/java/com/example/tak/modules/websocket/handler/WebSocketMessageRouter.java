@@ -4,6 +4,7 @@ import com.example.tak.modules.agent.service.AgentService;
 import com.example.tak.modules.kiosk.cart.dto.request.DeleteCartItemRequest;
 import com.example.tak.modules.kiosk.cart.service.CartCommandService;
 import com.example.tak.modules.kiosk.cart.service.CartQueryService;
+import com.example.tak.modules.kiosk.order.service.ConfirmCommandService;
 import com.example.tak.modules.kiosk.start.dto.ConverseRequest;
 import com.example.tak.modules.kiosk.start.dto.SessionStartRequest;
 import com.example.tak.modules.kiosk.order.dto.request.*;
@@ -28,6 +29,7 @@ public class WebSocketMessageRouter {
     private final OrderFlowService orderFlowService;
     private final CartQueryService cartQueryService;
     private final CartCommandService cartCommandService;
+    private final ConfirmCommandService confirmOrder;
 
     public String route(String type, JsonNode data, String wsSessionId) throws Exception {
         return switch (type) {
@@ -193,6 +195,25 @@ public class WebSocketMessageRouter {
 
                 SelectDetailOptionsRequest req = objectMapper.treeToValue(data, SelectDetailOptionsRequest.class);
                 var res = orderFlowService.selectDetailOptions(wsSessionId, req.getSelectedOptionValueIds());
+
+                yield objectMapper.writeValueAsString(res);
+            }
+
+            // ---------------------------- 주문 확정 ----------------------------
+            case "order_confirm" -> {
+                log.info("[Router] handling ORDER_CONFIRM, wsSessionId={}", wsSessionId);
+
+                AgentSessionInfo info = webSocketSessionManager.get(wsSessionId);
+                if (info == null) {
+                    yield objectMapper.writeValueAsString(
+                            WebSocketErrorResponse.of("SESSION_NOT_FOUND", "세션이 없음. 다시 시작 권장")
+                    );
+                }
+
+                Integer storeId = Integer.valueOf(info.getStoreId());
+                String sessionId = info.getAgentSessionId();
+
+                var res = confirmOrder.confirmOrder(storeId, sessionId);
 
                 yield objectMapper.writeValueAsString(res);
             }
