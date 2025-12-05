@@ -1,6 +1,8 @@
 package com.example.tak.modules.websocket.handler;
 
 import com.example.tak.modules.agent.service.AgentService;
+import com.example.tak.modules.kiosk.cart.dto.request.DeleteCartItemRequest;
+import com.example.tak.modules.kiosk.cart.service.CartCommandService;
 import com.example.tak.modules.kiosk.cart.service.CartQueryService;
 import com.example.tak.modules.kiosk.start.dto.ConverseRequest;
 import com.example.tak.modules.kiosk.start.dto.SessionStartRequest;
@@ -25,6 +27,7 @@ public class WebSocketMessageRouter {
     private final WebSocketSessionManager webSocketSessionManager;
     private final OrderFlowService orderFlowService;
     private final CartQueryService cartQueryService;
+    private final CartCommandService cartCommandService;
 
     public String route(String type, JsonNode data, String wsSessionId) throws Exception {
         return switch (type) {
@@ -109,6 +112,28 @@ public class WebSocketMessageRouter {
 
                 // CartResponseDto 그대로 내려보내기
                 yield objectMapper.writeValueAsString(cart);
+            }
+
+            // ---------------------------- 장바구니 요소 삭제 ----------------------------
+            case "delete_cart_item" -> {
+                log.info("[Router] handling DELETE_CART_ITEM, wsSessionId={}", wsSessionId);
+
+                AgentSessionInfo info = webSocketSessionManager.get(wsSessionId);
+                if (info == null) {
+                    yield objectMapper.writeValueAsString(
+                            WebSocketErrorResponse.of("SESSION_NOT_FOUND", "세션이 없음. 다시 시작 권장")
+                    );
+                }
+
+                DeleteCartItemRequest req = objectMapper.treeToValue(data, DeleteCartItemRequest.class);
+
+                var res = cartCommandService.deleteCartItem(
+                        Integer.valueOf(info.getStoreId()),
+                        info.getAgentSessionId(),         // sessionId = agentSessionId
+                        req.getOrderDetailId()
+                );
+
+                yield objectMapper.writeValueAsString(res);
             }
 
             // ----------------------------주문 플로우 시작----------------------------
