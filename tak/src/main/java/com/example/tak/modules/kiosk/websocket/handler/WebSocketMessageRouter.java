@@ -54,6 +54,8 @@ public class WebSocketMessageRouter {
                         AgentSessionInfo.of(request.getStoreId(), request.getMenuVersion(), agentSessionId)
                 );
 
+                response.setSessionId(wsSessionId);
+
                 // 응답 그대로 WebSocket으로 내려보냄
                 yield objectMapper.writeValueAsString(response);
             }

@@ -10,5 +10,5 @@ public class PhoneNumLoginRequest {
 
     private String phoneNumber;
 
-    private String webSocketSessionId;
+    private String sessionId;
 }

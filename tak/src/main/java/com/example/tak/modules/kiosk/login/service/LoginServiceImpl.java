@@ -25,27 +25,12 @@ public class LoginServiceImpl implements LoginService{
         // 2) 중앙 인증 서버 호출
         KioskPhoneNumLoginCentResponse centResponse = centralAuthClient.loginByPhoneNum(centRequest);
 
-//        // ---------
-//        KioskPhoneNumLoginCentResponse centResponse;
-//        try {
-//            centResponse = centralAuthClient.loginByPhoneNum(centRequest);
-//        } catch (Exception e) {
-//            return PhoneNumLoginResponse.builder()
-//                    .login_success(false)
-//                    .message("CENTRAL_SERVER_ERROR")
-//                    .build();
-//        }
-//
-//        // ---------
-
         if(centResponse == null){
             return PhoneNumLoginResponse.builder()
                     .login_success(false)
                     .message("CENTRAL_SERVER_ERROR")
                     .build();
         }
-
-
 
         // 3) 응답 채우기
         PhoneNumLoginResponse.PhoneNumLoginResponseBuilder builder
@@ -59,7 +44,7 @@ public class LoginServiceImpl implements LoginService{
         // 4) 로그인 성공 시 websocket 세션에 userID 바인딩 함
         if(centResponse.isLogin_success() && centResponse.getUserId() != null){
             webSocketSessionManager.attachUser(
-                    request.getWebSocketSessionId(),
+                    request.getSessionId(),
                     centResponse.getUserId()
             );
         }

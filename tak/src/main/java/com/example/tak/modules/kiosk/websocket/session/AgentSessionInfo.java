@@ -14,9 +14,10 @@ public class AgentSessionInfo {
     private int menuVersion;
     private String agentSessionId; // FastAPI session_id
     private Instant lastUpdated;
+    private Integer userId;
 
     public static AgentSessionInfo of(String storeId, int menuVersion, String agentSessionId){
-        return new AgentSessionInfo(storeId, menuVersion, agentSessionId, Instant.now());
+        return new AgentSessionInfo(storeId, menuVersion, agentSessionId, Instant.now(), null);
     }
 
     public void touch(){

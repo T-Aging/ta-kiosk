@@ -40,9 +40,10 @@ public class WebSocketSessionManager {
         AgentSessionInfo info = sessions.get(wsSessionId);
         if (info!=null){
             info.setUserId(userId);
+            info.touch();
             log.info("[SessionManager] Attached userId={} to wsSessionId={}", userId, wsSessionId);
         }else {
-            log.info("[SessionManager] Cannot attach userId. Session not found for wsSessionId={}", wsSessionId);
+            log.warn("[SessionManager] Cannot attach userId. Session not found for wsSessionId={}", wsSessionId);
         }
     }
 }
