@@ -20,7 +20,7 @@ public class ConfirmCommandService {
     private final OrderHeaderRepository orderHeaderRepository;
 
     @Transactional
-    public CartResponseDto confirmOrder(Integer storeId, String sessionId) {
+    public CartResponseDto confirmOrder(Integer storeId, String sessionId, Integer userId) {
 
         // 1) CART 상태의 가장 최신 주문 찾기
         OrderHeader header = orderHeaderRepository
@@ -32,6 +32,7 @@ public class ConfirmCommandService {
                 .orElseThrow(() ->
                         new IllegalArgumentException("확정할 장바구니가 없습니다.")
                 );
+        header.setUserId(userId);
 
         // 2) 상태 변경 (CART → CONFIRM)
         header.setOrderState(OrderHeader.OrderState.CONFIRM);

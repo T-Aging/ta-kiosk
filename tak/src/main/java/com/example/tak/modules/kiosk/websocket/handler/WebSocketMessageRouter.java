@@ -54,6 +54,7 @@ public class WebSocketMessageRouter {
                         AgentSessionInfo.of(request.getStoreId(), request.getMenuVersion(), agentSessionId)
                 );
 
+                // ***** 원래는 "webSocketSessionId"를 추가해서 넣는게 맞지만 프론트 dto 수정해야 해서 일단 이렇게 넣음 *****
                 response.setSessionId(wsSessionId);
 
                 // 응답 그대로 WebSocket으로 내려보냄
@@ -214,8 +215,9 @@ public class WebSocketMessageRouter {
 
                 Integer storeId = Integer.valueOf(info.getStoreId());
                 String sessionId = info.getAgentSessionId();
+                Integer userId = info.getUserId();
 
-                var res = confirmOrder.confirmOrder(storeId, sessionId);
+                var res = confirmOrder.confirmOrder(storeId, sessionId, userId);
 
                 yield objectMapper.writeValueAsString(res);
             }
