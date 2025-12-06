@@ -35,4 +35,14 @@ public class WebSocketSessionManager {
         AgentSessionInfo removed = sessions.remove(wsSessionId);
         log.info("[SessionManager] removed wsSessionId={}, info={}", wsSessionId, removed);
     }
+
+    public void attachUser(String wsSessionId, Integer userId){
+        AgentSessionInfo info = sessions.get(wsSessionId);
+        if (info!=null){
+            info.setUserId(userId);
+            log.info("[SessionManager] Attached userId={} to wsSessionId={}", userId, wsSessionId);
+        }else {
+            log.info("[SessionManager] Cannot attach userId. Session not found for wsSessionId={}", wsSessionId);
+        }
+    }
 }
