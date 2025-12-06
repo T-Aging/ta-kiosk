@@ -7,8 +7,10 @@ import com.example.tak.modules.kiosk.login.dto.response.KioskPhoneNumLoginCentRe
 import com.example.tak.modules.kiosk.login.dto.response.PhoneNumLoginResponse;
 import com.example.tak.modules.kiosk.websocket.session.WebSocketSessionManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoginServiceImpl implements LoginService{
@@ -43,6 +45,8 @@ public class LoginServiceImpl implements LoginService{
 
         // 4) 로그인 성공 시 websocket 세션에 userID 바인딩 함
         if(centResponse.isLogin_success() && centResponse.getUserId() != null){
+            // ***** 원래는 "webSocketSessionId"를 추가해서 넣는게 맞지만 프론트 dto 수정해야 해서 일단 이렇게 넣음 *****
+            log.info("[LoginService] attach userId={} to wsSessionId={}", centResponse.getUserId(), request.getSessionId());
             webSocketSessionManager.attachUser(
                     request.getSessionId(),
                     centResponse.getUserId()

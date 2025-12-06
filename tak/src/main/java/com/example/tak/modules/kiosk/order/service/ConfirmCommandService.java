@@ -8,11 +8,13 @@ import com.example.tak.modules.kiosk.cart.dto.CartItemOptionDto;
 import com.example.tak.modules.kiosk.cart.dto.CartResponseDto;
 import com.example.tak.modules.kiosk.cart.repository.OrderHeaderRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ConfirmCommandService {
@@ -21,7 +23,7 @@ public class ConfirmCommandService {
 
     @Transactional
     public CartResponseDto confirmOrder(Integer storeId, String sessionId, Integer userId) {
-
+        log.info("[ConfirmOrder] storeId={}, sessionId={}, userId param={}", storeId, sessionId, userId);
         // 1) CART 상태의 가장 최신 주문 찾기
         OrderHeader header = orderHeaderRepository
                 .findFirstByStore_IdAndSessionIdAndOrderStateOrderByOrderDateTimeDesc(
