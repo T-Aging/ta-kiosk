@@ -1,4 +1,4 @@
-package com.example.tak.modules.websocket.session;
+package com.example.tak.modules.kiosk.websocket.session;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

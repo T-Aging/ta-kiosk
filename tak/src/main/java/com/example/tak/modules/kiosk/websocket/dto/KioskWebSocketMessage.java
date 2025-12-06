@@ -1,4 +1,4 @@
-package com.example.tak.modules.websocket.dto;
+package com.example.tak.modules.kiosk.websocket.dto;
 
 import lombok.Getter;
 import lombok.Setter;

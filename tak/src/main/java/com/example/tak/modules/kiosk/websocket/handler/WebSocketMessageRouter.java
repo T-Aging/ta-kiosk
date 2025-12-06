@@ -1,4 +1,4 @@
-package com.example.tak.modules.websocket.handler;
+package com.example.tak.modules.kiosk.websocket.handler;
 
 import com.example.tak.modules.agent.service.AgentService;
 import com.example.tak.modules.kiosk.cart.dto.request.DeleteCartItemRequest;
@@ -9,9 +9,9 @@ import com.example.tak.modules.kiosk.start.dto.ConverseRequest;
 import com.example.tak.modules.kiosk.start.dto.SessionStartRequest;
 import com.example.tak.modules.kiosk.order.dto.request.*;
 import com.example.tak.modules.kiosk.order.orderflow.OrderFlowService;
-import com.example.tak.modules.websocket.dto.WebSocketErrorResponse;
-import com.example.tak.modules.websocket.session.AgentSessionInfo;
-import com.example.tak.modules.websocket.session.WebSocketSessionManager;
+import com.example.tak.modules.kiosk.websocket.dto.WebSocketErrorResponse;
+import com.example.tak.modules.kiosk.websocket.session.AgentSessionInfo;
+import com.example.tak.modules.kiosk.websocket.session.WebSocketSessionManager;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
