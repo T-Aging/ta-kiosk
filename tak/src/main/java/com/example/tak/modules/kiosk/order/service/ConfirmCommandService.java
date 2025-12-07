@@ -8,12 +8,13 @@ import com.example.tak.modules.kiosk.cart.dto.CartItemOptionDto;
 import com.example.tak.modules.kiosk.cart.dto.CartResponseDto;
 import com.example.tak.modules.kiosk.cart.repository.OrderHeaderRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ConfirmCommandService {
@@ -21,8 +22,8 @@ public class ConfirmCommandService {
     private final OrderHeaderRepository orderHeaderRepository;
 
     @Transactional
-    public CartResponseDto confirmOrder(Integer storeId, String sessionId) {
-
+    public CartResponseDto confirmOrder(Integer storeId, String sessionId, Integer userId) {
+        log.info("[ConfirmOrder] storeId={}, sessionId={}, userId param={}", storeId, sessionId, userId);
         // 1) CART 상태의 가장 최신 주문 찾기
         OrderHeader header = orderHeaderRepository
                 .findFirstByStore_IdAndSessionIdAndOrderStateOrderByOrderDateTimeDesc(
@@ -33,6 +34,7 @@ public class ConfirmCommandService {
                 .orElseThrow(() ->
                         new IllegalArgumentException("확정할 장바구니가 없습니다.")
                 );
+        header.setUserId(userId);
 
         // 2) 상태 변경 (CART → CONFIRM)
         header.setOrderState(OrderHeader.OrderState.CONFIRM);

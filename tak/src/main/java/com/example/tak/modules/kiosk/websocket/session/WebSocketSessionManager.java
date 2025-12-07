@@ -1,4 +1,4 @@
-package com.example.tak.modules.websocket.session;
+package com.example.tak.modules.kiosk.websocket.session;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -34,5 +34,16 @@ public class WebSocketSessionManager {
     public void remove(String wsSessionId){
         AgentSessionInfo removed = sessions.remove(wsSessionId);
         log.info("[SessionManager] removed wsSessionId={}, info={}", wsSessionId, removed);
+    }
+
+    public void attachUser(String wsSessionId, Integer userId){
+        AgentSessionInfo info = sessions.get(wsSessionId);
+        if (info!=null){
+            info.setUserId(userId);
+            info.touch();
+            log.info("[SessionManager] Attached userId={} to wsSessionId={}", userId, wsSessionId);
+        }else {
+            log.warn("[SessionManager] Cannot attach userId. Session not found for wsSessionId={}", wsSessionId);
+        }
     }
 }

@@ -1,8 +1,8 @@
-package com.example.tak.modules.websocket.handler;
+package com.example.tak.modules.kiosk.websocket.handler;
 
-import com.example.tak.modules.websocket.dto.KioskWebSocketMessage;
-import com.example.tak.modules.websocket.dto.WebSocketErrorResponse;
-import com.example.tak.modules.websocket.session.WebSocketSessionManager;
+import com.example.tak.modules.kiosk.websocket.dto.KioskWebSocketMessage;
+import com.example.tak.modules.kiosk.websocket.dto.WebSocketErrorResponse;
+import com.example.tak.modules.kiosk.websocket.session.WebSocketSessionManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
