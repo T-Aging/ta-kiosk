@@ -7,6 +7,7 @@ import com.example.tak.modules.kiosk.cart.dto.CartItemDto;
 import com.example.tak.modules.kiosk.cart.dto.CartItemOptionDto;
 import com.example.tak.modules.kiosk.cart.dto.CartResponseDto;
 import com.example.tak.modules.kiosk.cart.repository.OrderHeaderRepository;
+import com.example.tak.modules.sync.mq.OrderSyncProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 public class ConfirmCommandService {
 
     private final OrderHeaderRepository orderHeaderRepository;
+    private final OrderSyncProducer orderSyncProducer;
 
     @Transactional
     public CartResponseDto confirmOrder(Integer storeId, String sessionId, Integer userId) {
@@ -36,13 +38,16 @@ public class ConfirmCommandService {
                 );
         header.setUserId(userId);
 
-        // 2) 상태 변경 (CART → CONFIRM)
+        // 2) 상태 변경 (CART -> CONFIRM)
         header.setOrderState(OrderHeader.OrderState.CONFIRM);
 
-        // 3) 저장
+        // 3) 저장 (CONFIRM 상태 DB에 반영)
         OrderHeader saved = orderHeaderRepository.save(header);
 
-        // 4) CartResponseDto 형태로 반환
+        // 4) MQ에 주문 동기화 메시지 발행
+        orderSyncProducer.sendOrderSync(saved);
+
+        // 5) CartResponseDto 형태로 반환
         CartResponseDto res = new CartResponseDto();
         res.setType("order_confirm");
         res.setOrderId(saved.getId());
