@@ -1,7 +1,7 @@
 package com.example.tak.modules.sync.dto;
 
 public record OrderOptionSyncMessage(
-        Integer orderOptionId,
+        Integer sourceOrderOptionId,
         Integer optionId,
         Integer groupId,
         Integer valueId,

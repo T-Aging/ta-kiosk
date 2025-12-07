@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record OrderHeaderSyncMessage(
-        Integer orderId,
+        Integer sourceOrderId,
         Integer storeId,
         Integer userId,
         Integer totalPrice,
