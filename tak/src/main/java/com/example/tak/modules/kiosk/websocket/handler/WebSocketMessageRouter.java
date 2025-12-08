@@ -5,6 +5,7 @@ import com.example.tak.modules.kiosk.cart.dto.request.DeleteCartItemRequest;
 import com.example.tak.modules.kiosk.cart.service.CartCommandService;
 import com.example.tak.modules.kiosk.cart.service.CartQueryService;
 import com.example.tak.modules.kiosk.order.service.ConfirmCommandService;
+import com.example.tak.modules.kiosk.recent.service.RecentOrderService;
 import com.example.tak.modules.kiosk.start.dto.ConverseRequest;
 import com.example.tak.modules.kiosk.start.dto.SessionStartRequest;
 import com.example.tak.modules.kiosk.order.dto.request.*;
@@ -30,6 +31,7 @@ public class WebSocketMessageRouter {
     private final CartQueryService cartQueryService;
     private final CartCommandService cartCommandService;
     private final ConfirmCommandService confirmOrder;
+    private final RecentOrderService recentOrderService;
 
     public String route(String type, JsonNode data, String wsSessionId) throws Exception {
         return switch (type) {
@@ -93,6 +95,23 @@ public class WebSocketMessageRouter {
 
                 // WebSocket 전송
                 yield objectMapper.writeValueAsString(response);
+            }
+
+            // ---------------------------- 회원 최근 주문 ----------------------------
+            case "recent_orders" -> {
+                log.info("[Router] handling RECENT_ORDERS, wsSessionId={}", wsSessionId);
+                var result=recentOrderService.getRecentOrders(wsSessionId);
+                yield objectMapper.writeValueAsString(result);
+            }
+
+            // ---------------------------- 회원 최근 주문 (상세 조회) ----------------------------
+            case "recent_order_detail" -> {
+                log.info("[Router] handling RECENT_ORDER_DETAIL, wsSessionId={}", wsSessionId);
+                int orderId = data.get("orderId").asInt();
+
+                var result=recentOrderService.getRecentOrderDetail(wsSessionId, orderId);
+
+                yield objectMapper.writeValueAsString(result);
             }
 
             // ---------------------------- 장바구니 조회 ----------------------------
