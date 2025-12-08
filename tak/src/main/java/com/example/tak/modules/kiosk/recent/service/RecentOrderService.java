@@ -18,9 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 @Slf4j
@@ -166,6 +166,107 @@ public class RecentOrderService {
         );
 
         return res;
+    }
+
+    @Transactional
+    public CartResponseDto addItemFromRecentOrder(
+            Integer storeId,
+            String sessionId,
+            Integer userId,
+            Integer sourceOrderId,
+            Integer sourceOrderDetailId
+    ) {
+
+        // 1) 회원의 최근 확정 주문에서 원본 주문 헤더 조회
+        OrderHeader sourceHeader = orderHeaderRepository
+                .findByIdAndStore_IdAndUserIdAndOrderState(
+                        sourceOrderId,
+                        storeId,
+                        userId,
+                        OrderHeader.OrderState.CONFIRM
+                )
+                .orElseThrow(() -> new IllegalArgumentException("해당 최근 주문을 찾을 수 없습니다."));
+
+        // 2) 그 주문 안에서 사용자가 선택한 OrderDetail 찾기
+        OrderDetail sourceDetail = sourceHeader.getOrderDetails().stream()
+                .filter(d -> d.getId().equals(sourceOrderDetailId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("해당 메뉴를 최근 주문에서 찾을 수 없습니다."));
+
+        // 3) 현재 세션의 CART 주문 헤더 찾기 (없으면 새로 생성)
+        OrderHeader cartHeader = orderHeaderRepository
+                .findFirstByStore_IdAndSessionIdAndOrderStateOrderByOrderDateTimeDesc(
+                        storeId,
+                        sessionId,
+                        OrderHeader.OrderState.CART
+                )
+                .orElseGet(() -> {
+                    OrderHeader h = new OrderHeader();
+                    h.setStore(sourceHeader.getStore());
+                    h.setSessionId(sessionId);
+                    h.setUserId(userId);
+                    h.setOrderState(OrderHeader.OrderState.CART);
+                    h.setOrderDateTime(LocalDateTime.now());
+                    h.setOrderDate(LocalDate.now());
+                    h.setTotalPrice(BigDecimal.ZERO);
+                    return h;
+                });
+
+        // 4) 원본 OrderDetail을 복사해서 CART 헤더에 추가
+        OrderDetail newDetail = new OrderDetail();
+        newDetail.setMenu(sourceDetail.getMenu());
+        newDetail.setQuantity(sourceDetail.getQuantity());
+        newDetail.setTemperature(sourceDetail.getTemperature());
+        newDetail.setSize(sourceDetail.getSize());
+        newDetail.setOrderDetailPrice(sourceDetail.getOrderDetailPrice());
+
+        cartHeader.addDetail(newDetail);
+
+        // 5) 옵션들 복사
+        for (OrderOption srcOpt : sourceDetail.getOrderOptions()) {
+            OrderOption newOpt = new OrderOption();
+            newOpt.setOrderDetail(newDetail);
+            newOpt.setOptionGroup(srcOpt.getOptionGroup());
+            newOpt.setOptionValue(srcOpt.getOptionValue());
+            newOpt.setExtraNum(srcOpt.getExtraNum());
+            newOpt.setExtraPrice(srcOpt.getExtraPrice());
+            newDetail.getOrderOptions().add(newOpt);
+        }
+
+        // 6) 전체 장바구니 금액 다시 계산
+        BigDecimal newTotal = cartHeader.getOrderDetails().stream()
+                .map(d -> {
+                    int qty = d.getQuantity() == null ? 1 : d.getQuantity();
+                    BigDecimal unit = d.getOrderDetailPrice() != null
+                            ? d.getOrderDetailPrice()
+                            : BigDecimal.ZERO;
+                    return unit.multiply(BigDecimal.valueOf(qty));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        cartHeader.setTotalPrice(newTotal);
+
+        // 7) 저장
+        OrderHeader savedCart = orderHeaderRepository.save(cartHeader);
+
+        // 8) CartResponseDto 매핑
+        CartResponseDto result = new CartResponseDto();
+        result.setType("recent_order_to_cart");
+        result.setOrderId(savedCart.getId());
+        result.setStoreId(savedCart.getStore().getId());
+        result.setStoreName(savedCart.getStore().getName());
+        result.setSessionId(savedCart.getSessionId());
+        result.setOrderDateTime(savedCart.getOrderDateTime());
+        result.setTotalPrice(savedCart.getTotalPrice());
+        result.setWaitingNum(savedCart.getWaitingNum()); // 계속 NULL
+
+        result.setItems(
+                savedCart.getOrderDetails().stream()
+                        .map(this::toCartItemDto)
+                        .toList()
+        );
+
+        return result;
     }
 
     private CartItemDto toCartItemDto(OrderDetail orderDetail){

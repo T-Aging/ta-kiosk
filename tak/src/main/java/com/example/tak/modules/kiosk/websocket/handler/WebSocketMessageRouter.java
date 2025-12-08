@@ -5,6 +5,7 @@ import com.example.tak.modules.kiosk.cart.dto.request.DeleteCartItemRequest;
 import com.example.tak.modules.kiosk.cart.service.CartCommandService;
 import com.example.tak.modules.kiosk.cart.service.CartQueryService;
 import com.example.tak.modules.kiosk.order.service.ConfirmCommandService;
+import com.example.tak.modules.kiosk.recent.dto.RecentOrderAddToCartRequest;
 import com.example.tak.modules.kiosk.recent.service.RecentOrderService;
 import com.example.tak.modules.kiosk.start.dto.ConverseRequest;
 import com.example.tak.modules.kiosk.start.dto.SessionStartRequest;
@@ -113,6 +114,35 @@ public class WebSocketMessageRouter {
 
                 yield objectMapper.writeValueAsString(result);
             }
+            // ---------------------------- 회원 최근 주문 (장바구니 담기) ----------------------------
+            case "recent_order_to_cart" ->{
+                log.info("[Router] handling RECENT_ORDER_ADD_TO_CART, wsSessionId={}", wsSessionId);
+
+                AgentSessionInfo info = webSocketSessionManager.get(wsSessionId);
+                if (info == null || info.getUserId() == null){
+                    yield objectMapper.writeValueAsString(
+                            WebSocketErrorResponse.of("SESSION_NOT_FOUND", "세션 또는 사용자 정보가 없음. 다시 시작 바람.")
+                    );
+                }
+
+                RecentOrderAddToCartRequest request=
+                        objectMapper.treeToValue(data, RecentOrderAddToCartRequest.class);
+
+                Integer storeId = Integer.valueOf(info.getStoreId());
+                String sessionId = info.getAgentSessionId();
+                Integer userId= info.getUserId();
+
+                var result=recentOrderService.addItemFromRecentOrder(
+                        storeId,
+                        sessionId,
+                        userId,
+                        request.getOrderId(),
+                        request.getOrderDetailId()
+                );
+
+                yield objectMapper.writeValueAsString(result);
+            }
+
 
             // ---------------------------- 장바구니 조회 ----------------------------
             case "get_cart" -> {
