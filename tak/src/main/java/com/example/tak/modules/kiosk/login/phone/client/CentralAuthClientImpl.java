@@ -1,8 +1,8 @@
-package com.example.tak.modules.kiosk.login.client;
+package com.example.tak.modules.kiosk.login.phone.client;
 
 import com.example.tak.config.CentralServerProperties;
-import com.example.tak.modules.kiosk.login.dto.request.KioskPhoneNumLoginCentRequest;
-import com.example.tak.modules.kiosk.login.dto.response.KioskPhoneNumLoginCentResponse;
+import com.example.tak.modules.kiosk.login.phone.dto.request.KioskPhoneNumLoginCentRequest;
+import com.example.tak.modules.kiosk.login.phone.dto.response.KioskPhoneNumLoginCentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;

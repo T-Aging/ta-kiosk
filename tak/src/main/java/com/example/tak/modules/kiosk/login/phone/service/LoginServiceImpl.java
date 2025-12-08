@@ -1,10 +1,10 @@
-package com.example.tak.modules.kiosk.login.service;
+package com.example.tak.modules.kiosk.login.phone.service;
 
-import com.example.tak.modules.kiosk.login.client.CentralAuthClient;
-import com.example.tak.modules.kiosk.login.dto.request.KioskPhoneNumLoginCentRequest;
-import com.example.tak.modules.kiosk.login.dto.request.PhoneNumLoginRequest;
-import com.example.tak.modules.kiosk.login.dto.response.KioskPhoneNumLoginCentResponse;
-import com.example.tak.modules.kiosk.login.dto.response.PhoneNumLoginResponse;
+import com.example.tak.modules.kiosk.login.phone.client.CentralAuthClient;
+import com.example.tak.modules.kiosk.login.phone.dto.request.KioskPhoneNumLoginCentRequest;
+import com.example.tak.modules.kiosk.login.phone.dto.request.PhoneNumLoginRequest;
+import com.example.tak.modules.kiosk.login.phone.dto.response.KioskPhoneNumLoginCentResponse;
+import com.example.tak.modules.kiosk.login.phone.dto.response.PhoneNumLoginResponse;
 import com.example.tak.modules.kiosk.websocket.session.WebSocketSessionManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

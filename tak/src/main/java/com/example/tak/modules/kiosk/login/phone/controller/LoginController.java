@@ -1,8 +1,8 @@
-package com.example.tak.modules.kiosk.login.controller;
+package com.example.tak.modules.kiosk.login.phone.controller;
 
-import com.example.tak.modules.kiosk.login.dto.request.PhoneNumLoginRequest;
-import com.example.tak.modules.kiosk.login.dto.response.PhoneNumLoginResponse;
-import com.example.tak.modules.kiosk.login.service.LoginService;
+import com.example.tak.modules.kiosk.login.phone.dto.request.PhoneNumLoginRequest;
+import com.example.tak.modules.kiosk.login.phone.dto.response.PhoneNumLoginResponse;
+import com.example.tak.modules.kiosk.login.phone.service.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

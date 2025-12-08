@@ -1,4 +1,4 @@
-package com.example.tak.modules.kiosk.login.dto.request;
+package com.example.tak.modules.kiosk.login.phone.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
