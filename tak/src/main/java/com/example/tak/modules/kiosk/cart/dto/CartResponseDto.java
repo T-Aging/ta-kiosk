@@ -15,6 +15,7 @@ public class CartResponseDto {
     private String sessionId;
     private LocalDateTime orderDateTime;
     private BigDecimal totalPrice;
+    private Integer waitingNum;
     private List<CartItemDto> items;
 }
 

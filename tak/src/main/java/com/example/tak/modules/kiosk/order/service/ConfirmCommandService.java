@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -38,16 +40,33 @@ public class ConfirmCommandService {
                 );
         header.setUserId(userId);
 
-        // 2) 상태 변경 (CART -> CONFIRM)
+        // 2) 주문 날짜
+        if (header.getOrderDateTime() == null) {
+            header.setOrderDateTime(LocalDateTime.now());
+        }
+        if (header.getOrderDate() == null) {
+            header.setOrderDate(header.getOrderDateTime().toLocalDate());
+        }
+
+        // 3) 웨이팅 번호
+        if (header.getWaitingNum()==null){
+            LocalDate today=header.getOrderDate();
+            Integer maxWaitingNum=
+                    orderHeaderRepository.findMaxWaitingNum(storeId, today);
+            int nextWaitingNum=(maxWaitingNum==null? 1:maxWaitingNum+1);
+            header.setWaitingNum(nextWaitingNum);
+        }
+
+        // 4) 상태 변경 (CART -> CONFIRM)
         header.setOrderState(OrderHeader.OrderState.CONFIRM);
 
-        // 3) 저장 (CONFIRM 상태 DB에 반영)
+        // 5) 저장 (CONFIRM 상태 DB에 반영)
         OrderHeader saved = orderHeaderRepository.save(header);
 
-        // 4) MQ에 주문 동기화 메시지 발행
+        // 6) MQ에 주문 동기화 메시지 발행
         orderSyncProducer.sendOrderSync(saved);
 
-        // 5) CartResponseDto 형태로 반환
+        // 7) CartResponseDto 형태로 반환
         CartResponseDto res = new CartResponseDto();
         res.setType("order_confirm");
         res.setOrderId(saved.getId());
@@ -56,6 +75,7 @@ public class ConfirmCommandService {
         res.setSessionId(saved.getSessionId());
         res.setOrderDateTime(saved.getOrderDateTime());
         res.setTotalPrice(saved.getTotalPrice());
+        res.setWaitingNum(saved.getWaitingNum());
 
         res.setItems(
                 saved.getOrderDetails()
