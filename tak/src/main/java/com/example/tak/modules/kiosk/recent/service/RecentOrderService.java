@@ -187,13 +187,13 @@ public class RecentOrderService {
                 )
                 .orElseThrow(() -> new IllegalArgumentException("해당 최근 주문을 찾을 수 없습니다."));
 
-        // 2) 그 주문 안에서 사용자가 선택한 OrderDetail 찾기
-        OrderDetail sourceDetail = sourceHeader.getOrderDetails().stream()
-                .filter(d -> d.getId().equals(sourceOrderDetailId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("해당 메뉴를 최근 주문에서 찾을 수 없습니다."));
+//        // !) 그 주문 안에서 사용자가 선택한 OrderDetail 찾기
+//        OrderDetail sourceDetail = sourceHeader.getOrderDetails().stream()
+//                .filter(d -> d.getId().equals(sourceOrderDetailId))
+//                .findFirst()
+//                .orElseThrow(() -> new IllegalArgumentException("해당 메뉴를 최근 주문에서 찾을 수 없습니다."));
 
-        // 3) 현재 세션의 CART 주문 헤더 찾기 (없으면 새로 생성)
+        // 2) 현재 세션의 CART 주문 헤더 찾기 (없으면 새로 생성)
         OrderHeader cartHeader = orderHeaderRepository
                 .findFirstByStore_IdAndSessionIdAndOrderStateOrderByOrderDateTimeDesc(
                         storeId,
@@ -212,28 +212,21 @@ public class RecentOrderService {
                     return h;
                 });
 
-        // 4) 원본 OrderDetail을 복사해서 CART 헤더에 추가
-        OrderDetail newDetail = new OrderDetail();
-        newDetail.setMenu(sourceDetail.getMenu());
-        newDetail.setQuantity(sourceDetail.getQuantity());
-        newDetail.setTemperature(sourceDetail.getTemperature());
-        newDetail.setSize(sourceDetail.getSize());
-        newDetail.setOrderDetailPrice(sourceDetail.getOrderDetailPrice());
+        if (sourceOrderDetailId == null){
+            log.info("[RecentOrder] add whole order to cart. sourceOrderId={}", sourceOrderId);
 
-        cartHeader.addDetail(newDetail);
-
-        // 5) 옵션들 복사
-        for (OrderOption srcOpt : sourceDetail.getOrderOptions()) {
-            OrderOption newOpt = new OrderOption();
-            newOpt.setOrderDetail(newDetail);
-            newOpt.setOptionGroup(srcOpt.getOptionGroup());
-            newOpt.setOptionValue(srcOpt.getOptionValue());
-            newOpt.setExtraNum(srcOpt.getExtraNum());
-            newOpt.setExtraPrice(srcOpt.getExtraPrice());
-            newDetail.getOrderOptions().add(newOpt);
+            for (OrderDetail sourceDetail : sourceHeader.getOrderDetails()){
+                copyDetailToCart(cartHeader, sourceDetail);
+            }
+        } else {
+            OrderDetail sourceDetail = sourceHeader.getOrderDetails().stream()
+                    .filter(d -> d.getId().equals(sourceOrderDetailId))
+                    .findFirst()
+                    .orElseThrow(()-> new IllegalArgumentException("해당 메뉴를 최근 주문에서 찾을 수 없습니다."));
+            copyDetailToCart(cartHeader, sourceDetail);
         }
 
-        // 6) 전체 장바구니 금액 다시 계산
+        // 4) 전체 장바구니 금액 다시 계산
         BigDecimal newTotal = cartHeader.getOrderDetails().stream()
                 .map(d -> {
                     int qty = d.getQuantity() == null ? 1 : d.getQuantity();
@@ -304,6 +297,29 @@ public class RecentOrderService {
         cartItemOptionDto.setOptionValueName(orderOption.getOptionValue().getDisplayName());
         cartItemOptionDto.setExtraPrice(orderOption.getExtraPrice());
         return cartItemOptionDto;
+    }
+
+    private void copyDetailToCart(OrderHeader cartHeader, OrderDetail sourceDetail){
+        // 원본 OrderDetail을 복사해서 CART 헤더에 추가
+        OrderDetail newDetail = new OrderDetail();
+        newDetail.setMenu(sourceDetail.getMenu());
+        newDetail.setQuantity(sourceDetail.getQuantity());
+        newDetail.setTemperature(sourceDetail.getTemperature());
+        newDetail.setSize(sourceDetail.getSize());
+        newDetail.setOrderDetailPrice(sourceDetail.getOrderDetailPrice());
+
+        cartHeader.addDetail(newDetail);
+
+        // 옵션들 복사
+        for (OrderOption srcOpt : sourceDetail.getOrderOptions()) {
+            OrderOption newOpt = new OrderOption();
+            newOpt.setOrderDetail(newDetail);
+            newOpt.setOptionGroup(srcOpt.getOptionGroup());
+            newOpt.setOptionValue(srcOpt.getOptionValue());
+            newOpt.setExtraNum(srcOpt.getExtraNum());
+            newOpt.setExtraPrice(srcOpt.getExtraPrice());
+            newDetail.getOrderOptions().add(newOpt);
+        }
     }
 
 }
