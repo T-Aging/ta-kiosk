@@ -4,6 +4,9 @@ import com.example.tak.modules.agent.service.AgentService;
 import com.example.tak.modules.kiosk.cart.dto.request.DeleteCartItemRequest;
 import com.example.tak.modules.kiosk.cart.service.CartCommandService;
 import com.example.tak.modules.kiosk.cart.service.CartQueryService;
+import com.example.tak.modules.kiosk.login.phone.dto.request.PhoneNumLoginRequest;
+import com.example.tak.modules.kiosk.login.phone.service.LoginService;
+import com.example.tak.modules.kiosk.login.qr.dto.request.QrLoginRequest;
 import com.example.tak.modules.kiosk.order.service.ConfirmCommandService;
 import com.example.tak.modules.kiosk.recent.dto.RecentOrderAddToCartRequest;
 import com.example.tak.modules.kiosk.recent.service.RecentOrderService;
@@ -33,6 +36,7 @@ public class WebSocketMessageRouter {
     private final CartCommandService cartCommandService;
     private final ConfirmCommandService confirmOrder;
     private final RecentOrderService recentOrderService;
+    private final LoginService loginService;
 
     public String route(String type, JsonNode data, String wsSessionId) throws Exception {
         return switch (type) {
@@ -57,7 +61,7 @@ public class WebSocketMessageRouter {
                         AgentSessionInfo.of(request.getStoreId(), request.getMenuVersion(), agentSessionId)
                 );
 
-                // ***** 원래는 "webSocketSessionId"를 추가해서 넣는게 맞지만 프론트 dto 수정해야 해서 일단 이렇게 넣음 *****
+                // ***** RESTfulAPI 테스트용: 원래는 "webSocketSessionId"를 추가해서 넣는게 맞지만 프론트 dto 수정해야 해서 일단 이렇게 넣음 *****
                 response.setSessionId(wsSessionId);
 
                 // 응답 그대로 WebSocket으로 내려보냄
@@ -97,7 +101,25 @@ public class WebSocketMessageRouter {
                 // WebSocket 전송
                 yield objectMapper.writeValueAsString(response);
             }
+            // ---------------------------- 폰 번호 로그인 ----------------------------
+            case "phone_num_login" -> {
+                PhoneNumLoginRequest request = objectMapper.treeToValue(data, PhoneNumLoginRequest.class);
 
+                request.setSessionId(wsSessionId);
+
+                var response=loginService.loginByPhoneNum(request);
+                yield objectMapper.writeValueAsString(response);
+            }
+
+            // ---------------------------- QR 로그인 ----------------------------
+            case "qr_login" -> {
+                QrLoginRequest request = objectMapper.treeToValue(data, QrLoginRequest.class);
+
+                request.setSessionId(wsSessionId);
+
+                var response=loginService.loginByQr(request);
+                yield objectMapper.writeValueAsString(response);
+            }
             // ---------------------------- 회원 최근 주문 ----------------------------
             case "recent_orders" -> {
                 log.info("[Router] handling RECENT_ORDERS, wsSessionId={}", wsSessionId);

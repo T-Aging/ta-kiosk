@@ -5,6 +5,10 @@ import com.example.tak.modules.kiosk.login.phone.dto.request.KioskPhoneNumLoginC
 import com.example.tak.modules.kiosk.login.phone.dto.request.PhoneNumLoginRequest;
 import com.example.tak.modules.kiosk.login.phone.dto.response.KioskPhoneNumLoginCentResponse;
 import com.example.tak.modules.kiosk.login.phone.dto.response.PhoneNumLoginResponse;
+import com.example.tak.modules.kiosk.login.qr.dto.request.KioskQrLoginCentRequest;
+import com.example.tak.modules.kiosk.login.qr.dto.request.QrLoginRequest;
+import com.example.tak.modules.kiosk.login.qr.dto.response.KioskQrLoginCentResponse;
+import com.example.tak.modules.kiosk.login.qr.dto.response.QrLoginResponse;
 import com.example.tak.modules.kiosk.websocket.session.WebSocketSessionManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +46,43 @@ public class LoginServiceImpl implements LoginService{
                 .userId(centResponse.getUserId())
                 .username(centResponse.getUsername())
                 .maskedPhone(centResponse.getMaskedPhone());
+
+        // 4) 로그인 성공 시 websocket 세션에 userID 바인딩 함
+        if(centResponse.isLogin_success() && centResponse.getUserId() != null){
+            // ***** 원래는 "webSocketSessionId"를 추가해서 넣는게 맞지만 프론트 dto 수정해야 해서 일단 이렇게 넣음 *****
+            log.info("[LoginService] attach userId={} to wsSessionId={}", centResponse.getUserId(), request.getSessionId());
+            webSocketSessionManager.attachUser(
+                    request.getSessionId(),
+                    centResponse.getUserId()
+            );
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    public QrLoginResponse loginByQr(QrLoginRequest request) {
+        // 1) 회원용 모바일 앱 서버에 보낼 DTO
+        KioskQrLoginCentRequest centRequest = new KioskQrLoginCentRequest();
+        centRequest.setQrCode(request.getQrCode());
+
+        // 2) 중앙 인증 서버 호출
+        KioskQrLoginCentResponse centResponse = centralAuthClient.loginByQr(centRequest);
+
+        if(centResponse == null){
+            return QrLoginResponse.builder()
+                    .login_success(false)
+                    .message("CENTRAL_SERVER_ERROR")
+                    .build();
+        }
+
+        // 3) 응답 채우기
+        QrLoginResponse.QrLoginResponseBuilder builder
+                = QrLoginResponse.builder()
+                .login_success(centResponse.isLogin_success())
+                .message(centResponse.getMessage())
+                .userId(centResponse.getUserId())
+                .username(centResponse.getUsername());
 
         // 4) 로그인 성공 시 websocket 세션에 userID 바인딩 함
         if(centResponse.isLogin_success() && centResponse.getUserId() != null){
