@@ -46,4 +46,14 @@ public class WebSocketSessionManager {
             log.warn("[SessionManager] Cannot attach userId. Session not found for wsSessionId={}", wsSessionId);
         }
     }
+
+    public void unregister(String wsSessionId){
+        AgentSessionInfo removed=sessions.remove(wsSessionId);
+
+        if (removed != null) {
+            log.info("[WS-SessionManager] unregister: wsSessionId={} 제거됨, removed={}", wsSessionId, removed);
+        } else {
+            log.warn("[WS-SessionManager] unregister: wsSessionId={} 존재하지 않음", wsSessionId);
+        }
+    }
 }

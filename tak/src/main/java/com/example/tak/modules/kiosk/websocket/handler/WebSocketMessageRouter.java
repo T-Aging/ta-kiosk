@@ -4,6 +4,7 @@ import com.example.tak.modules.agent.service.AgentService;
 import com.example.tak.modules.kiosk.cart.dto.request.DeleteCartItemRequest;
 import com.example.tak.modules.kiosk.cart.service.CartCommandService;
 import com.example.tak.modules.kiosk.cart.service.CartQueryService;
+import com.example.tak.modules.kiosk.end.dto.SessionEndResponse;
 import com.example.tak.modules.kiosk.login.phone.dto.request.PhoneNumLoginRequest;
 import com.example.tak.modules.kiosk.login.phone.service.LoginService;
 import com.example.tak.modules.kiosk.login.qr.dto.request.QrLoginRequest;
@@ -291,6 +292,34 @@ public class WebSocketMessageRouter {
                 var res = confirmOrder.confirmOrder(storeId, sessionId, userId);
 
                 yield objectMapper.writeValueAsString(res);
+            }
+
+            case "session_end" -> {
+                log.info("[Router] handling SESSION_END, wsSessionId={}", wsSessionId);
+
+                AgentSessionInfo info = webSocketSessionManager.get(wsSessionId);
+
+                if (info==null){
+                    yield objectMapper.writeValueAsString(
+                            WebSocketErrorResponse.of("SESSION_NOT_FOUND", "이미 세션이 종료되었거나 존재하지 않습니다.")
+                    );
+                }
+
+                // 1) Agent 쪽 세션 종료 호출
+                try{
+                    agentService.endSession(info.getAgentSessionId());
+                } catch (Exception e){
+                    log.warn("[Router] agent endSession 실패. sessionId={}", info.getAgentSessionId(), e);
+                }
+
+                // 2) WebSocketSessionManager에서 세션 메타 정보 제거
+                webSocketSessionManager.unregister(wsSessionId);
+
+                // 3) 프론트에 WebSocket 닫으라는 신호
+                SessionEndResponse response=
+                        SessionEndResponse.of("SESSION_ENDED", "대화가 종료되었습니다. 초기 화면으로 돌아갑니다.");
+
+                yield objectMapper.writeValueAsString(response);
             }
 
             // 그 외의 타입은 모두 에러 처리
