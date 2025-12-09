@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) // 기본 로그인 페이지 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/ta-kiosk/ai-agent/**").permitAll()
+                        .requestMatchers("/ta-kiosk/ai-agent/**", "ws/kiosk/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .build();
