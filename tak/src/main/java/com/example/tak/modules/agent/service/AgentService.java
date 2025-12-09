@@ -80,4 +80,16 @@ public class AgentService {
 
         return kioskRes;
     }
+
+    public void endSession(String agentSessionId){
+        log.info("[AgentService] endSession called, agentSessionId={}", agentSessionId);
+
+        try{
+            aiAgentClient.endSession(agentSessionId);
+            log.info("[AgentService] endSession success, agentSessionId={}", agentSessionId);
+        } catch (Exception e){
+            log.warn("[AgentService] endSession failed, agentSessionId={}", agentSessionId, e);
+        }
+
+    }
 }

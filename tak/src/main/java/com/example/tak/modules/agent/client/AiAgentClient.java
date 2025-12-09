@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -56,5 +58,19 @@ public class AiAgentClient {
                 })
                 .block();
 
+    }
+
+    public void endSession(String sessionId){
+        log.info("[AiAgentClient] endSession 호출: sessionId={}", sessionId);
+
+        aiAgentWebClient.post()
+                .uri("/ta-kiosk/ai-agent/session/end")
+                .bodyValue(Map.of("sessionId", sessionId))
+                .retrieve()
+                .toBodilessEntity()
+                .doOnSuccess(r -> log.info("[AiAgentClient] endSession 성공: sessionId={}", sessionId))
+                .doOnError(ex -> log.error("[AiAgentClient] endSession 호출 중 오류, sessionId={}", sessionId, ex))
+                .onErrorResume(ex-> Mono.empty())
+                .block();
     }
 }
