@@ -39,3 +39,7 @@ out/
 *.env
 *.properties
 *.sh
+
+.DS_Store
+tak/.DS_Store
+.idea/
