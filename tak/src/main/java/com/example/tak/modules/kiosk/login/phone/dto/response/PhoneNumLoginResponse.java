@@ -10,6 +10,8 @@ import lombok.Setter;
 @Builder
 public class PhoneNumLoginResponse {
 
+    private String type;
+
     private boolean login_success;
 
     private String message;

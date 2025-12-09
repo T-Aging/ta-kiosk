@@ -109,6 +109,8 @@ public class WebSocketMessageRouter {
                 request.setSessionId(wsSessionId);
 
                 var response=loginService.loginByPhoneNum(request);
+                response.setType("phone_num_login");
+
                 yield objectMapper.writeValueAsString(response);
             }
 
@@ -119,6 +121,8 @@ public class WebSocketMessageRouter {
                 request.setSessionId(wsSessionId);
 
                 var response=loginService.loginByQr(request);
+                response.setType("qr_login");
+
                 yield objectMapper.writeValueAsString(response);
             }
             // ---------------------------- 회원 최근 주문 ----------------------------

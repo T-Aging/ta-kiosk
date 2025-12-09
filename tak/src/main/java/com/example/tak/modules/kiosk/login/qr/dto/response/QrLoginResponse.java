@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class QrLoginResponse {
+    private String type;
+
     private boolean login_success;
 
     private String message;
