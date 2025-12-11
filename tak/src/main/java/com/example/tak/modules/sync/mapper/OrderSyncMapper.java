@@ -24,6 +24,7 @@ public class OrderSyncMapper {
                 header.getTotalPrice() != null ? header.getTotalPrice().intValue() : null,
                 header.getOrderState().name(),
                 header.getOrderDateTime(),
+                header.getWaitingNum(),
                 detailSyncMessages
         );
     }

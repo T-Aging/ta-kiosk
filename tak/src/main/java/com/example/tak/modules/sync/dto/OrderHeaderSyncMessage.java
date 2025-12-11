@@ -10,6 +10,7 @@ public record OrderHeaderSyncMessage(
         Integer totalPrice,
         String orderState,
         LocalDateTime orderDateTime,
+        Integer waitingNum,
         List<OrderDetailSyncMessage> details
 ) {
 }
