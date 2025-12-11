@@ -1,5 +1,5 @@
 # 1단계: Build Stage
-FROM gradle:8.5-jdk17 AS builder
+FROM gradle:8.14-jdk17 AS builder
 WORKDIR /app
 
 # 필요한 파일 복사
@@ -17,7 +17,7 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 
 # 환경 변수 추가 가능 (선택)
-ENV SPRING_PROFILES_ACTIVE=prod
+#ENV SPRING_PROFILES_ACTIVE=prod
 
 EXPOSE 8080
 
