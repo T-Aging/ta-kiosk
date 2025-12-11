@@ -47,6 +47,10 @@ public class WebSocketMessageRouter {
             case "start" -> {
                 log.info("[Router] handling START");
 
+                // 0) CART 정리
+                Integer storeId = data.get("storeId").asInt();
+                confirmOrder.clearCartOnSessionStart(storeId);
+
                 // 파라미터 DTO 구성
                 SessionStartRequest request = new SessionStartRequest();
                 request.setStoreId(data.get("storeId").asText());

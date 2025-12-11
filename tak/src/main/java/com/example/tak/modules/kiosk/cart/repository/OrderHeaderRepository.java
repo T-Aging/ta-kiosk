@@ -2,8 +2,10 @@ package com.example.tak.modules.kiosk.cart.repository;
 
 import com.example.tak.common.OrderHeader;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,4 +40,11 @@ public interface OrderHeaderRepository extends JpaRepository<OrderHeader, Intege
     Integer findMaxWaitingNum(
             @Param("storeId") Integer storeId,
             @Param("orderDate") LocalDate orderDate);
+
+    @Modifying
+    @Transactional
+    long deleteByStore_IdAndOrderState(
+            Integer storeId,
+            OrderHeader.OrderState orderState
+    );
 }

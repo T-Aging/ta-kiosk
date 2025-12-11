@@ -87,6 +87,16 @@ public class ConfirmCommandService {
         return res;
     }
 
+    @Transactional
+    public void clearCartOnSessionStart(Integer storeId) {
+        long deleted = orderHeaderRepository
+                .deleteByStore_IdAndOrderState(
+                        storeId,
+                        OrderHeader.OrderState.CART
+                );
+        log.info("[CartCleanupOnStart] storeId={}, deleted={}", storeId, deleted);
+    }
+
     private CartItemDto toCartItemDto(OrderDetail detail) {
 
         CartItemDto dto = new CartItemDto();
