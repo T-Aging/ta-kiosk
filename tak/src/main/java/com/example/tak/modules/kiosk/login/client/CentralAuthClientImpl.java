@@ -1,4 +1,4 @@
-package com.example.tak.modules.kiosk.login.phone.client;
+package com.example.tak.modules.kiosk.login.client;
 
 import com.example.tak.config.CentralServerProperties;
 import com.example.tak.modules.kiosk.login.phone.dto.request.KioskPhoneNumLoginCentRequest;

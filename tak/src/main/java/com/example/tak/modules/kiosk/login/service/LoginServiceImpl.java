@@ -1,6 +1,6 @@
-package com.example.tak.modules.kiosk.login.phone.service;
+package com.example.tak.modules.kiosk.login.service;
 
-import com.example.tak.modules.kiosk.login.phone.client.CentralAuthClient;
+import com.example.tak.modules.kiosk.login.client.CentralAuthClient;
 import com.example.tak.modules.kiosk.login.phone.dto.request.KioskPhoneNumLoginCentRequest;
 import com.example.tak.modules.kiosk.login.phone.dto.request.PhoneNumLoginRequest;
 import com.example.tak.modules.kiosk.login.phone.dto.response.KioskPhoneNumLoginCentResponse;

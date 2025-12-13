@@ -6,7 +6,7 @@ import com.example.tak.modules.kiosk.cart.service.CartCommandService;
 import com.example.tak.modules.kiosk.cart.service.CartQueryService;
 import com.example.tak.modules.kiosk.end.dto.SessionEndResponse;
 import com.example.tak.modules.kiosk.login.phone.dto.request.PhoneNumLoginRequest;
-import com.example.tak.modules.kiosk.login.phone.service.LoginService;
+import com.example.tak.modules.kiosk.login.service.LoginService;
 import com.example.tak.modules.kiosk.login.qr.dto.request.QrLoginRequest;
 import com.example.tak.modules.kiosk.order.service.ConfirmCommandService;
 import com.example.tak.modules.kiosk.recent.dto.RecentOrderAddToCartRequest;

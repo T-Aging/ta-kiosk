@@ -1,8 +1,8 @@
-package com.example.tak.modules.kiosk.login.phone.controller;
+package com.example.tak.modules.kiosk.login.controller;
 
 import com.example.tak.modules.kiosk.login.phone.dto.request.PhoneNumLoginRequest;
 import com.example.tak.modules.kiosk.login.phone.dto.response.PhoneNumLoginResponse;
-import com.example.tak.modules.kiosk.login.phone.service.LoginService;
+import com.example.tak.modules.kiosk.login.service.LoginService;
 import com.example.tak.modules.kiosk.login.qr.dto.request.QrLoginRequest;
 import com.example.tak.modules.kiosk.login.qr.dto.response.QrLoginResponse;
 import lombok.RequiredArgsConstructor;
