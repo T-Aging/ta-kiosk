@@ -1,0 +1,41 @@
+# 로컬 Docker/MySQL 테스트용
+ai-agent:
+  base-url: http://${AI_AGENT_HOST}:${AI_AGENT_PORT}
+
+central:
+  server:
+    base-url: http://${CENTRAL_SERVER_HOST}:${CENTRAL_SERVER_PORT}
+
+spring:
+  application:
+    name: ta-kiosk
+
+  datasource:
+    url: ${KIOSK_ENDPOINT_LOCAL}
+    username: ${KIOSK_DB_USER_LOCAL}
+    password: ${KIOSK_DB_PASS_LOCAL}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none # update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: never # always
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: 5672
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASS}
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace

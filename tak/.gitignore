@@ -42,5 +42,4 @@ out/
 .DS_Store
 tak/.DS_Store
 .idea/
-application-local.yml
 application-prod.yml
